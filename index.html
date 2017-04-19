@@ -6,85 +6,47 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
 
-        <title>Bootstrap 101 Template</title>
+        <title>英凰游戏后台管理系统</title>
 
         <!-- Bootstrap -->
         <link href="css/bootstrap.min.css" rel="stylesheet">
-
+        <!-- GameManage css -->
+        <link href="css/gamemanage.css" rel="stylesheet">
         <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
         <script src="js/jquery_1_12_4/jquery.min.js"></script>
         <!-- Include all compiled plugins (below), or include individual files as needed -->
         <script src="js/bootstrap.min.js"></script>
 
-        <style type="text/css">
-            body {
-              background-color: #eee;
-            }
-
-            .form-signin {
-              max-width: 330px;
-              padding: 15px;
-              margin: 0 auto;
-            }
-            .form-signin .form-signin-heading,
-            .form-signin .checkbox {
-              margin-bottom: 10px;
-            }
-            .form-signin .checkbox {
-              font-weight: normal;
-            }
-            .form-signin .form-control {
-              position: relative;
-              height: auto;
-              -webkit-box-sizing: border-box;
-                 -moz-box-sizing: border-box;
-                      box-sizing: border-box;
-              padding: 10px;
-              font-size: 16px;
-            }
-            .form-signin .form-control:focus {
-              z-index: 2;
-            }
-            .form-signin input[type="email"] {
-              margin-bottom: -1px;
-              border-bottom-right-radius: 0;
-              border-bottom-left-radius: 0;
-            }
-            .form-signin input[type="password"] {
-              margin-bottom: 10px;
-              border-top-left-radius: 0;
-              border-top-right-radius: 0;
-            }
-        </style>
-
     </head>
     <body>
-        <!-- 导航条
-        <nav class="navbar navbar-default" role="navigation">
+
+        <nav class="navbar navbar-default" role="navigation" id="boxNavigation" style="display: none;">
           <div class="container-fluid">
             <div class="navbar-header">
                 <div class="navbar-brand">英凰游戏后台管理 <small>Ver1.0</small></div>
             </div>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="#"><span class="glyphicon glyphicon-log-out"></span> 退出</a></li>
+                <li><a href="#"><span class="glyphicon glyphicon-log-out"></span>退出</a></li>
             </ul>
             <p class="navbar-text navbar-right">当前用户：范志明</p>
           </div>
         </nav>
-        -->
-        <div class="center-block" style="width:300px;">
-            <form class="form-signin" style="width:300px;">
-                <h2 class="form-signin-heading">输入用户名密码</h2>
-                <label for="inputEmail" class="sr-only">Email address</label>
+
+        <div class="center-block" style="width:350px;">
+            <br /><br />
+            <form class="form-signin" style="width:350px;">
+                <h2 class="form-signin-heading">输入用户名密码</h2><br />
+                <!-- <label for="inputEmail" class="sr-only">Email address</label> -->
                 <input type="text" id="inputText" class="form-control" placeholder="帐号" required autofocus>
                 <label for="inputPassword" class="sr-only">Password</label>
-                <input type="password" id="inputPassword" class="form-control" placeholder="密码" required>
+                <input type="password" id="inputPassword" class="form-control" placeholder="密码" required style="margin-top:10px;border-radius:5px;">
                 <div class="checkbox">
                 </div>
+                <br />
                 <button class="btn btn-lg btn-primary btn-block" type="submit" onclick="function(){alert('hi');}">Sign in</button>
             </form>
 
-            <div class="alert alert-danger alert-dismissable">
+            <div class="alert alert-danger alert-dismissable" style="display: none;">
                 <button type="button" class="close" data-dismiss="alert"
                         aria-hidden="true">
                     &times;
