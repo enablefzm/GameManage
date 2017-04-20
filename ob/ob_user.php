@@ -15,16 +15,28 @@ class ob_user {
         $this->name     = $db['name'];
     }
 
+    // 判断密码
+    //  @parames
+    //      string $password
+    //  @return
+    //      boolean 成功返回true
+    public function chekcPass($password) {
+        if ($this->password != $password) {
+            return false;
+        }
+        return true;
+    }
+
     // 通过用户UID构造用户对象
     // @parames
     //      uid string
     // @return
     //      CUser | null
     static public function GetUserInUid($uid) {
-        $rss = Connect::GetConn()->query(self::TLB_Name, 'uid="'.$uid.'"');
+        $rss = ob_conn_connect::GetConn()->query(self::TLB_Name, 'uid="'.$uid.'"');
         if (count($rss) < 1)
             return null;
-        return new CUser($rss[0]);
+        return new ob_user($rss[0]);
     }
 }
 

@@ -1,9 +1,9 @@
 <?php
 require_once('config.php');
-const PATH = dirname(__FILE__).'/';
+define("PATH", dirname(__FILE__).'/');
 
-// 自动加载类
-function __autolaod($className) {
+// 注册自动加载类
+spl_autoload_register(function ($className) {
     $arr = explode('_', $className);
     $filePath = '';
     $il = count($arr);
@@ -12,7 +12,7 @@ function __autolaod($className) {
             $filePath .=  $arr[$i].'/';
         }
     }
-    $fileName = PATH.$filePath.$className;
+    $fileName = PATH.$filePath.$className.'.php';
     require_once($fileName);
-}
+});
 ?>

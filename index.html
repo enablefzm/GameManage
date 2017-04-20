@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
 
-        <title>英凰游戏后台管理系统</title>
+        <title>-</title>
 
         <!-- Bootstrap -->
         <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -16,42 +16,50 @@
         <script src="js/jquery_1_12_4/jquery.min.js"></script>
         <!-- Include all compiled plugins (below), or include individual files as needed -->
         <script src="js/bootstrap.min.js"></script>
+        <!-- Include gamemanage.js -->
+        <script src="js/gamemanage.js"></script>
 
     </head>
     <body>
-
-        <nav class="navbar navbar-default" role="navigation" id="boxNavigation" style="display: none;">
-          <div class="container-fluid">
-            <div class="navbar-header">
-                <div class="navbar-brand">英凰游戏后台管理 <small>Ver1.0</small></div>
-            </div>
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="#"><span class="glyphicon glyphicon-log-out"></span>退出</a></li>
-            </ul>
-            <p class="navbar-text navbar-right">当前用户：范志明</p>
-          </div>
-        </nav>
-
-        <div class="center-block" style="width:350px;">
-            <br /><br />
-            <form class="form-signin" style="width:350px;">
+        <!-- 管理系统主界面 -->
+        <div id="divMain" style="display: none;">
+            <nav class="navbar navbar-default" role="navigation" id="boxNavigation" >
+              <div class="container-fluid">
+                <div class="navbar-header">
+                    <div class="navbar-brand">英凰游戏后台管理 <small>Ver1.0</small></div>
+                </div>
+                <ul class="nav navbar-nav navbar-right" id="btnLoginOut">
+                    <li><a href="#"><span class="glyphicon glyphicon-log-out"></span> 退出</a></li>
+                </ul>
+                <p class="navbar-text navbar-right">当前用户：<span>-</span></p>
+              </div>
+            </nav>
+        </div>
+        <!-- 管理系统登入界面 -->
+        <div class="center-block" style="width:350px;display: none;" id="divLoginBox">
+            <form class="form-signin" style="width:350px;margin-top: 100px;" onsubmit="return;">
                 <h2 class="form-signin-heading">输入用户名密码</h2><br />
                 <!-- <label for="inputEmail" class="sr-only">Email address</label> -->
-                <input type="text" id="inputText" class="form-control" placeholder="帐号" required autofocus>
+                <input type="text" id="txtLoginUid" class="form-control" placeholder="帐号" required autofocus>
                 <label for="inputPassword" class="sr-only">Password</label>
-                <input type="password" id="inputPassword" class="form-control" placeholder="密码" required style="margin-top:10px;border-radius:5px;">
+                <input type="password" id="txtLoginPwd" class="form-control" placeholder="密码" required style="margin-top:10px;border-radius:5px;">
                 <div class="checkbox">
                 </div>
                 <br />
-                <button class="btn btn-lg btn-primary btn-block" type="submit" onclick="function(){alert('hi');}">Sign in</button>
+                <button class="btn btn-lg btn-primary btn-block" type="submit" id="btnLogin">Sign in</button>
             </form>
 
-            <div class="alert alert-danger alert-dismissable" style="display: none;">
+            <div class="alert alert-danger alert-dismissable" style="display: none;" id="divLoginInfo">
+                <!--
                 <button type="button" class="close" data-dismiss="alert"
                         aria-hidden="true">
                     &times;
                 </button>
-                错误！请进行一些更改。
+                -->
+                <button type="button" class="close" aria-hidden="true" data-dismiss="alert" id="btnLoginClose">
+                    &times;
+                </button>
+                <span id="spLoginInfo"></span>
             </div>
         </div>
     </body>
