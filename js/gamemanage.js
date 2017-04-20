@@ -4,7 +4,9 @@ window.onload = function() {
 	Gv.init();
 	// 获取管理平台信息
 	Gm.send('systeminfo', function(jsondb){
-		window.document.title = jsondb.DBs.AppName + ' ' + jsondb.DBs.AppVersion;
+		Gm.appName = jsondb.DBs.AppName;
+		Gm.appVersion = jsondb.DBs.AppVersion;
+		window.document.title = Gm.appName + ' ' + Gm.appVersion;
 	});
 	// 判断是否已经登入
 	Gm.send('checkislogin', function(jsondb) {
@@ -24,6 +26,14 @@ var Gm;
 	GM.appName    = '';
 	GM.appVersion = '';
 	GM.serverPath = 'do.php';
+	// 玩家信息数据
+	GM.DBs = {
+		'User': {
+			'id': 0,
+			'uid': '',
+			'name': ''
+		}
+	};
 	GM.send = function(cmd, backFunc) {
 		$.ajax({
 			'url': 		this.serverPath,
@@ -83,11 +93,25 @@ var Gv;
 	Gv.showLogin = function() {
 		$('#divLoginBox').show();
 		$('#divMain').hide();
+		$('#txtLoginUid').val('');
+		$('#txtLoginPwd').val('');
+		$('#divLoginInfo').hide();
 	};
 	Gv.showMain = function() {
 		$('#divMain').show();
 		$('#divLoginBox').hide();
+		// 显示游戏信息
+		$('#spMainAppName').text(Gm.appName);
+		$('#spMainAppVer').text('Ver' + Gm.appVersion);
 		// 获取操作员信息
+		Gm.send('user info', function(jsondb) {
+			if (!jsondb.RES)
+				return;
+			Gm.DBs.User.id = jsondb.DBs.id;
+			Gm.DBs.User.uid = jsondb.DBs.uid;
+			Gm.DBs.User.name = jsondb.DBs.name;
+			$('#spMainUserName').text(Gm.DBs.User.name);
+		});
 	};
 	// 显示登入界面下面的提示信息
 	Gv.showLoginInfo = function(msg) {

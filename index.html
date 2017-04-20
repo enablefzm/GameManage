@@ -26,12 +26,12 @@
             <nav class="navbar navbar-default" role="navigation" id="boxNavigation" >
               <div class="container-fluid">
                 <div class="navbar-header">
-                    <div class="navbar-brand">英凰游戏后台管理 <small>Ver1.0</small></div>
+                    <div class="navbar-brand"><span id="spMainAppName">-</span> <small id="spMainAppVer">-</small></div>
                 </div>
                 <ul class="nav navbar-nav navbar-right" id="btnLoginOut">
                     <li><a href="#"><span class="glyphicon glyphicon-log-out"></span> 退出</a></li>
                 </ul>
-                <p class="navbar-text navbar-right">当前用户：<span>-</span></p>
+                <p class="navbar-text navbar-right">当前用户：<span id="spMainUserName">-</span></p>
               </div>
             </nav>
         </div>
@@ -48,15 +48,8 @@
                 <br />
                 <button class="btn btn-lg btn-primary btn-block" type="submit" id="btnLogin">Sign in</button>
             </form>
-
             <div class="alert alert-danger alert-dismissable" style="display: none;" id="divLoginInfo">
-                <!--
-                <button type="button" class="close" data-dismiss="alert"
-                        aria-hidden="true">
-                    &times;
-                </button>
-                -->
-                <button type="button" class="close" aria-hidden="true" data-dismiss="alert" id="btnLoginClose">
+                <button type="button" class="close" aria-hidden="true" onclick="JavaScript:$('#divLoginInfo').hide();" id="btnLoginClose">
                     &times;
                 </button>
                 <span id="spLoginInfo"></span>

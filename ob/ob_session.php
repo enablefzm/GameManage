@@ -22,6 +22,12 @@ class ob_session {
         $this->setUid($uid);
     }
 
+    public function getUid() {
+        if (!$this->IsLogin())
+            return null;
+        return $_SESSION[self::SESS_UID_KEY];
+    }
+
     public function destroy() {
         unset($_SESSION[self::SESS_UID_KEY]);
     }

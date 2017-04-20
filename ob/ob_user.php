@@ -15,6 +15,24 @@ class ob_user {
         $this->name     = $db['name'];
     }
 
+    // 获取用户名
+    //  @return
+    //      string
+    public function GetUserName() {
+        return $this->name;
+    }
+
+    // 获取用户详细名称
+    //  @return
+    //      Array  用户信息
+    public function GetUserInfo() {
+        return array(
+            'id'   => $this->id,
+            'uid'  => $this->uid,
+            'name' => $this->name
+        );
+    }
+
     // 判断密码
     //  @parames
     //      string $password
