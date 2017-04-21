@@ -23,17 +23,56 @@
     <body>
         <!-- 管理系统主界面 -->
         <div id="divMain" style="display: none;">
-            <nav class="navbar navbar-default" role="navigation" id="boxNavigation" >
-              <div class="container-fluid">
-                <div class="navbar-header">
-                    <div class="navbar-brand"><span id="spMainAppName">-</span> <small id="spMainAppVer">-</small></div>
+            <!-- 顶部导航 -->
+            <div id="mainTopBar" >
+                <nav class="navbar navbar-default" role="navigation" id="boxNavigation">
+                  <div class="container-fluid">
+                    <div class="navbar-header">
+                        <div class="navbar-brand" style="color: #000000;padding-left: 15px;"><span id="spMainAppName" style="font-weight:bold;">-</span> <small id="spMainAppVer">-</small></div>
+                    </div>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li ><a href="javascript:void(0);" ><span class="glyphicon glyphicon-tasks"></span> <span id="spMainGameName">未选定</span> </a></li>
+                        <li ><a href="javascript:void(0);" ><span class="glyphicon glyphicon-user"></span> <span id="spMainUserName">-</span> </a></li>
+                        <li id="btnLoginOut"><a href="#"><span class="glyphicon glyphicon-log-out"></span> 退出</a></li>
+                    </ul>
+                    <!-- <sapn class="navbar-text navbar-right">游戏：<span id="spMainGameName">-  </span><i class="glyphicon glyphicon-user"></i>&nbsp;<span id="spMainUserName">-</span></span> -->
+                  </div>
+                </nav>
+            </div>
+            <!-- 左边菜单 -->
+            <div id="mainLeftMenu">
+
+                <div class="container-fluid">
+                    <div class="row" >
+                        <div class="col-md-2" style="width: 200px;">
+                            <ul id="main-nav" class="nav nav-tabs nav-stacked" style="">
+                                <li class="active"><a href="#"><i class="glyphicon glyphicon-th-large"></i>&nbsp;Menu</a></li>
+                                <li><a href="#menuGameManage" class="nav-header collapsed" data-toggle="collapse"><i class="glyphicon glyphicon-tasks"></i> 游戏管理<span class="pull-right glyphicon glyphicon-chevron-down"></span></a>
+                                    <ul id="menuGameManage" class="nav nav-list collapse secondmenu" style="height: 0px;">
+                                        <li><a href="#"><i class="glyphicon glyphicon-list"></i> 游戏列表</a></li>
+                                        <li><a href="#"><i class="glyphicon glyphicon-plus"></i> 新增游戏</a></li>
+                                    </ul>
+                                </li>
+                                <li><a href="#"><i class="glyphicon glyphicon-globe"></i> 分发配置<span class="label label-warning pull-right">5</span></a></li>
+                                <li><a href="#"><i class="glyphicon glyphicon-calendar"></i> 图表统计</a></li>
+                                <li><a href="#"><i class="glyphicon glyphicon-fire"></i> 关于系统</a></li>
+                                <li><a href="#systemSetting" class="nav-header collapsed" data-toggle="collapse"><i class="glyphicon glyphicon-cog"></i> 系统管理<span class="pull-right glyphicon glyphicon-chevron-down"></span></a>
+                                    <ul id="systemSetting" class="nav nav-list collapse secondmenu" style="height: 0px;">
+                                        <li><a href="#"><i class="glyphicon glyphicon-user"></i>用户管理</a></li>
+                                        <li><a href="#"><i class="glyphicon glyphicon-th-list"></i>菜单管理</a></li>
+                                        <li><a href="#"><i class="glyphicon glyphicon-asterisk"></i>角色管理</a></li>
+                                        <li><a href="#"><i class="glyphicon glyphicon-edit"></i>修改密码</a></li>
+                                        <li><a href="#"><i class="glyphicon glyphicon-eye-open"></i>日志查看</a></li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-                <ul class="nav navbar-nav navbar-right" id="btnLoginOut">
-                    <li><a href="#"><span class="glyphicon glyphicon-log-out"></span> 退出</a></li>
-                </ul>
-                <p class="navbar-text navbar-right">当前用户：<span id="spMainUserName">-</span></p>
-              </div>
-            </nav>
+            </div>
+            <!-- 正文内容 -->
+            <div id="mainRightContend"></div>
+
         </div>
         <!-- 管理系统登入界面 -->
         <div class="center-block" style="width:350px;display: none;" id="divLoginBox">

@@ -6,26 +6,28 @@ window.onload = function() {
 	Gm.send('systeminfo', function(jsondb){
 		Gm.appName = jsondb.DBs.AppName;
 		Gm.appVersion = jsondb.DBs.AppVersion;
-		window.document.title = Gm.appName + ' ' + Gm.appVersion;
-	});
-	// 判断是否已经登入
-	Gm.send('checkislogin', function(jsondb) {
-		if (jsondb.DBs == true) {
-			// 显示主界面
-			Gv.showMain();
-		} else {
-			Gv.showLogin();
-		}
+		window.document.title = Gm.appName;
+		// 判断是否已经登入
+		Gm.send('checkislogin', function(jsondb) {
+			if (jsondb.DBs == true) {
+				// 显示主界面
+				Gv.showMain();
+			} else {
+				Gv.showLogin();
+			}
+		});
 	});
 }
 
 // GameManage类
 var Gm;
-
 (function(GM){
 	GM.appName    = '';
 	GM.appVersion = '';
 	GM.serverPath = 'do.php';
+	Gm.gameName   = '未选定';
+	Gm.gameZone   = '';
+
 	// 玩家信息数据
 	GM.DBs = {
 		'User': {
@@ -59,8 +61,10 @@ var Gm;
 	};
 })(Gm || (Gm = {}));
 
+// GameManageView类
 var Gv;
 (function(Gv) {
+	// 初始化View类
 	Gv.init = function() {
 		// 绑定退出
 		$('#btnLoginOut').bind('click', function() {
@@ -90,6 +94,7 @@ var Gv;
 			});
 		});
 	};
+	// 显示登入界面
 	Gv.showLogin = function() {
 		$('#divLoginBox').show();
 		$('#divMain').hide();
@@ -97,6 +102,7 @@ var Gv;
 		$('#txtLoginPwd').val('');
 		$('#divLoginInfo').hide();
 	};
+	// 显示主界面
 	Gv.showMain = function() {
 		$('#divMain').show();
 		$('#divLoginBox').hide();
@@ -118,5 +124,4 @@ var Gv;
 		$('#divLoginInfo').show();
 		$('#spLoginInfo').html(msg);
 	};
-
 })(Gv || (Gv = {}));
