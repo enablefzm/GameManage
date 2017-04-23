@@ -124,4 +124,115 @@ var Gv;
 		$('#divLoginInfo').show();
 		$('#spLoginInfo').html(msg);
 	};
+	// 显示中区管理
+	Gv.Content = {
+		'nowContent': null,
+		'arrContent': {}
+	};
+	// 显示不同区的内容
+	Gv.Content.showContent = function(cType) {
+		if (!this.arrContent[cType]) {
+			return;
+		}
+		if (this.nowContent)
+			this.nowContent.hide();
+		this.arrContent[cType].show();
+		this.nowContent = this.arrContent[cType];
+	};
+	Gv.Content.regContent = function(cType, ob) {
+		this.arrContent[cType] = ob;
+	};
+	// 显示指定的节点内容
+	// 	@parames
+	// 		dTitle  标题节点名称
+	// 		dHead   菜单列表节点名称
+	// 		dBody   正文节点名称
+	// 		md 		要生成内容的主节点
+	// 		showDb	要在指定节点生成的内容数据
+	// 			{
+	// 				title: '' 标题
+	// 				menus: [['名称', 宽度]...] 菜单
+	// 				dbs:   [数据列]
+	// 				key:   查询的主键
+	// 			}
+	Gv.Content.createTable = function(dTitle, dHead, dBody, showDb, actionDb) {
+		dTitle.text(showDb.title);
+		dHead.empty();
+		dBody.empty();
+		// 创建标题
+        var sHead = "<tr>";
+        for (var k in showDb.menus) {
+        	var t = showDb.menus[k];
+        	if (t[1] > 0) {
+        		sHead += '<th style="width:' + t[1] + 'px;">' + t[0] + '</th>';
+        	} else {
+        		sHead += '<th>' + t[0] + '</th>';
+        	}
+        }
+        if (actionDb) {
+        	sHead += '<th style="width:200px;">操作</th>'
+        }
+        sHead += "</tr>";
+		dHead.append($(sHead));
+		// 添加正文
+		var dbs = showDb.dbs;
+		for (var k in dbs) {
+			var arr = dbs[k];
+			var s = '<tr>';
+			for (var t in arr) {
+				s += '<td>' + arr[t] + '</td>';
+			}
+			s += '</tr>';
+			var tr = $(s);
+			if (actionDb) {
+				var st = $('<td style=""></td>');
+				for (var i = 0; i < actionDb.length; i++) {
+					if (i > 0) {
+						st.append($('<span>&nbsp;&nbsp;</span>'));
+					}
+					var func = actionDb[i][1];
+					var arg  = arr[showDb.key];
+					sa = $('<a href="javascript:void(0);">' + actionDb[i][0] + '</a>');
+					sa[0].doFunc = func;
+					sa[0].doArg  = arg;
+					sa.click(function(e){ this.doFunc(this.doArg); });
+					st.append(sa);
+				}
+				tr.append(st);
+			}
+			dBody.append(tr);
+		}
+	};
+	// 清除列表信息
+	Gv.Content.clearTableList = function(md) {
+
+	};
+
 })(Gv || (Gv = {}));
+
+// 游戏列表窗口对象
+(function() {
+	var WinContent = {
+		'mName' : 'JIMMY',
+		'show': function() {
+			$('#contGameList').show();
+			Gm.send('game list', function(jsondb) {
+				WinContent.showDb(jsondb);
+			});
+		},
+		'hide': function() {
+			$('#contGameList').hide();
+		},
+		'showDb': function(jsondb) {
+			Gv.Content.createTable($('#contGameListTitle'), $('#contGameListHead'), $('#contGameListBody'), jsondb.DBs, [
+				['查看', function(gid) {
+					WinContent.showGameInfo(gid);
+				}]
+			]);
+		},
+		showGameInfo: function(gId) {
+			console.log("要查看：", this.mName, " gId:", gId);
+		}
+	};
+	Gv.Content.regContent('gameList', WinContent);
+}());

@@ -49,8 +49,10 @@
                                 <li class="active"><a href="#"><i class="glyphicon glyphicon-th-large"></i>&nbsp;Menu</a></li>
                                 <li><a href="#menuGameManage" class="nav-header collapsed" data-toggle="collapse"><i class="glyphicon glyphicon-tasks"></i> 游戏管理<span class="pull-right glyphicon glyphicon-chevron-down"></span></a>
                                     <ul id="menuGameManage" class="nav nav-list collapse secondmenu" style="height: 0px;">
-                                        <li><a href="#"><i class="glyphicon glyphicon-list"></i> 游戏列表</a></li>
-                                        <li><a href="#"><i class="glyphicon glyphicon-plus"></i> 新增游戏</a></li>
+                                        <li><a href="#" onclick="javascript:Gv.Content.showContent('gameList');"><i class="glyphicon glyphicon-list"></i> 游戏列表</a></li>
+                                        <!-- <li><a href="#"><i class="glyphicon glyphicon-plus"></i> 新增游戏</a></li> -->
+                                        <li><a href="#"><i class="glyphicon glyphicon-list-alt"></i> 游戏分区</a></li>
+                                        <li><a href="#"><i class="glyphicon glyphicon-plus"></i> 新增分区</a></li>
                                     </ul>
                                 </li>
                                 <li><a href="#"><i class="glyphicon glyphicon-globe"></i> 分发配置<span class="label label-warning pull-right">5</span></a></li>
@@ -70,13 +72,41 @@
                     </div>
                 </div>
             </div>
-            <!-- 正文内容 -->
-            <div id="mainRightContend"></div>
 
+            <!-- 正文内容 -->
+            <div id="mainRightContend" style="margin-top: 5px;margin-left: 20px; margin-right: 20px;">
+                <table class="table table-hover" id="contGameList">
+                    <caption id="contGameListTitle">游戏列表</caption>
+                    <thead id="contGameListHead">
+                        <tr>
+                            <th style="width:200px;">名称</th>
+                            <th style="width:200px;">城市</th>
+                            <th>邮编</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contGameListBody">
+                        <tr>
+                            <td>Tanmay</td>
+                            <td>Bangalore</td>
+                            <td>560001</td>
+                        </tr>
+                        <tr>
+                            <td>Sachin</td>
+                            <td>Mumbai</td>
+                            <td>400003</td>
+                        </tr>
+                        <tr>
+                            <td>Uma</td>
+                            <td>Pune</td>
+                            <td>411027</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <!-- 管理系统登入界面 -->
         <div class="center-block" style="width:350px;display: none;" id="divLoginBox">
-            <form class="form-signin" style="width:350px;margin-top: 100px;" onsubmit="return;">
+            <form class="form-signin" style="width:350px;margin-top: 100px;" onsubmit="return false;">
                 <h2 class="form-signin-heading">输入用户名密码</h2><br />
                 <!-- <label for="inputEmail" class="sr-only">Email address</label> -->
                 <input type="text" id="txtLoginUid" class="form-control" placeholder="帐号" required autofocus>
