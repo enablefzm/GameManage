@@ -36,6 +36,15 @@ var Gm;
 			'name': ''
 		}
 	};
+	GM.OBs = {
+		ArrOB: {},
+		regOB: function(obName, ob) {
+			this.ArrOB[obName] = ob;
+		},
+		getOB: function(obName) {
+			return this.ArrOB[obName];
+		}
+	};
 	GM.send = function(cmd, backFunc) {
 		$.ajax({
 			'url': 		this.serverPath,
@@ -59,6 +68,7 @@ var Gm;
 	GM.checkIsLogin = function(backFunc) {
 
 	};
+
 })(Gm || (Gm = {}));
 
 // GameManageView类
@@ -117,6 +127,8 @@ var Gv;
 			Gm.DBs.User.uid = jsondb.DBs.uid;
 			Gm.DBs.User.name = jsondb.DBs.name;
 			$('#spMainUserName').text(Gm.DBs.User.name);
+			// 执行显示游戏列表
+			Gv.Content.showContent('gameList');
 		});
 	};
 	// 显示登入界面下面的提示信息
@@ -147,7 +159,6 @@ var Gv;
 	// 		dTitle  标题节点名称
 	// 		dHead   菜单列表节点名称
 	// 		dBody   正文节点名称
-	// 		md 		要生成内容的主节点
 	// 		showDb	要在指定节点生成的内容数据
 	// 			{
 	// 				title: '' 标题
@@ -155,6 +166,7 @@ var Gv;
 	// 				dbs:   [数据列]
 	// 				key:   查询的主键
 	// 			}
+	//		actionDb 要生成的动作函数
 	Gv.Content.createTable = function(dTitle, dHead, dBody, showDb, actionDb) {
 		dTitle.text(showDb.title);
 		dHead.empty();
@@ -170,7 +182,11 @@ var Gv;
         	}
         }
         if (actionDb) {
-        	sHead += '<th style="width:200px;">操作</th>'
+        	var wh = '150px';
+        	if (actionDb.length > 2) {
+        		wh = '200px';
+        	}
+        	sHead += '<th style="width:' + wh + '">操作</th>'
         }
         sHead += "</tr>";
 		dHead.append($(sHead));
@@ -213,7 +229,7 @@ var Gv;
 // 游戏列表窗口对象
 (function() {
 	var WinContent = {
-		'mName' : 'JIMMY',
+		'SELECT_GAME' : 0,
 		'show': function() {
 			$('#contGameList').show();
 			Gm.send('game list', function(jsondb) {
@@ -225,14 +241,46 @@ var Gv;
 		},
 		'showDb': function(jsondb) {
 			Gv.Content.createTable($('#contGameListTitle'), $('#contGameListHead'), $('#contGameListBody'), jsondb.DBs, [
-				['查看', function(gid) {
-					WinContent.showGameInfo(gid);
+				['选定', function(gid) {
+					WinContent.setGame(gid);
 				}]
 			]);
 		},
 		showGameInfo: function(gId) {
 			console.log("要查看：", this.mName, " gId:", gId);
+		},
+		setGame: function(gId) {
+			// 设定为选中的游戏
+			// console.log("选中ID", gId);
+			this.SELECT_GAME = gId;
+			$('#alertModal').modal("show");
 		}
 	};
 	Gv.Content.regContent('gameList', WinContent);
+}());
+
+(function() {
+	var WinContent = {
+		'show': function() {
+			$('#contGameList').show();
+			Gm.send('game zones', function(jsondb) {
+				WinContent.showDb(jsondb);
+			});
+		},
+		'hide': function() {
+			$('#contGameList').hide();
+		},
+		'showDb': function(jsondb) {
+			Gv.Content.createTable($('#contGameListTitle'), $('#contGameListHead'), $('#contGameListBody'), jsondb.DBs, [
+				['选定', function(zId) {
+					WinContent.setZone(zId);
+				}]
+			]);
+		},
+		'setZone': function(zId) {
+			console.log("ZONE ID:", zId);
+		}
+	}
+	Gv.Content.regContent('zoneList', WinContent);
+	Gm.OBs.regOB('ZONE', WinContent);
 }());

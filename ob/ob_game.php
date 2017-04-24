@@ -1,6 +1,6 @@
 <?php
 // 游戏服务器对象
-class ob_games {
+class ob_game {
     private $attribs = array(
         'id'       => 0,
         'gameName' => '',
@@ -20,6 +20,18 @@ class ob_games {
         return $this->attribs;
     }
 
+    public function getName() {
+        return $this->attribs['gameName'];
+    }
+
+    public function  getID() {
+        return $this->attribs['id'];
+    }
+
+    public function getGameKey() {
+        return $this->attribs['gameKey'];
+    }
+
     // 通过ID获得指定的某个对象
     //  @parames
     //      int $id 游戏ID
@@ -30,7 +42,7 @@ class ob_games {
         if (count($rss) != 1) {
             return null;
         }
-        return new ob_games($rss[0]);
+        return new ob_game($rss[0]);
     }
 
     // 获得所有的游戏对象
@@ -40,7 +52,7 @@ class ob_games {
         $rss = ob_conn_connect::GetConn()->query('games');
         $obs = array();
         for ($i = 0; $i < count($rss); $i++) {
-            $obs[] = new ob_games($rss[$i]);
+            $obs[] = new ob_game($rss[$i]);
         }
         return $obs;
     }

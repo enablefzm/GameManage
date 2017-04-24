@@ -6,7 +6,7 @@ class game implements ob_ifcmd {
         if ($il > 0) {
             switch ($args[0]) {
                 case 'list':
-                    $obs = ob_games::getGames();
+                    $obs = ob_game::getGames();
                     $result = array();
                     foreach ($obs as $k => $ob) {
                         $arr      = $ob->getAttrib();
@@ -14,18 +14,24 @@ class game implements ob_ifcmd {
                         $result[] = array($arr['id'], $arr['gameName'], $arr['gameKey'], $arr['gameDate']);
                     }
                     $res = ob_conn_res::GetRes("GAMES");
-                    $resDb = array(
-                        'title' => '游戏列表',
-                        'menus' => array(
-                            array('系统ID', 200),
-                            array('游戏名称', 200),
-                            array('游戏键值', 200),
-                            array('创建时间', 0)
-                        ),
-                        'dbs' => $result,
-                        'key' => 0
-                    );
-                    $res->SetDBs($resDb);
+                    $obResDb = new ob_res('游戏列表');
+                    $obResDb->addMenu('系统ID', 100);
+                    $obResDb->addMenu('游戏名称', 150);
+                    $obResDb->addMenu('游戏键值', 150);
+                    $obResDb->addMenu('创建时间', 0);
+                    $obResDb->setDbs($result);
+                    $res->SetDBs($obResDb->getRes());
+                    return $res;
+                    break;
+                case 'zones':
+                    $gameId = 1;
+                    if ($il >= 2) {
+                        $gameId = $args[1];
+                    }
+                    $obGame = ob_game::getGame($gameId);
+                    $gateGame = ob_gateway::newGameOnID($obGame->getGameKey(), $obGame->getID());
+                    $res = ob_conn_res::GetRes('GAME_ZONES');
+                    $res->SetDBs($gateGame->getListZoneResDb());
                     return $res;
                     break;
             }
