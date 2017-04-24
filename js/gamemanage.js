@@ -139,91 +139,108 @@ var Gv;
 	// 显示中区管理
 	Gv.Content = {
 		'nowContent': null,
-		'arrContent': {}
-	};
-	// 显示不同区的内容
-	Gv.Content.showContent = function(cType) {
-		if (!this.arrContent[cType]) {
-			return;
-		}
-		if (this.nowContent)
-			this.nowContent.hide();
-		this.arrContent[cType].show();
-		this.nowContent = this.arrContent[cType];
-	};
-	Gv.Content.regContent = function(cType, ob) {
-		this.arrContent[cType] = ob;
-	};
-	// 显示指定的节点内容
-	// 	@parames
-	// 		dTitle  标题节点名称
-	// 		dHead   菜单列表节点名称
-	// 		dBody   正文节点名称
-	// 		showDb	要在指定节点生成的内容数据
-	// 			{
-	// 				title: '' 标题
-	// 				menus: [['名称', 宽度]...] 菜单
-	// 				dbs:   [数据列]
-	// 				key:   查询的主键
-	// 			}
-	//		actionDb 要生成的动作函数
-	Gv.Content.createTable = function(dTitle, dHead, dBody, showDb, actionDb) {
-		dTitle.text(showDb.title);
-		dHead.empty();
-		dBody.empty();
-		// 创建标题
-        var sHead = "<tr>";
-        for (var k in showDb.menus) {
-        	var t = showDb.menus[k];
-        	if (t[1] > 0) {
-        		sHead += '<th style="width:' + t[1] + 'px;">' + t[0] + '</th>';
-        	} else {
-        		sHead += '<th>' + t[0] + '</th>';
-        	}
-        }
-        if (actionDb) {
-        	var wh = '150px';
-        	if (actionDb.length > 2) {
-        		wh = '200px';
-        	}
-        	sHead += '<th style="width:' + wh + '">操作</th>'
-        }
-        sHead += "</tr>";
-		dHead.append($(sHead));
-		// 添加正文
-		var dbs = showDb.dbs;
-		for (var k in dbs) {
-			var arr = dbs[k];
-			var s = '<tr>';
-			for (var t in arr) {
-				s += '<td>' + arr[t] + '</td>';
+		'arrContent': {},
+		// 显示不同区的内容
+		'showContent': function(cType) {
+			if (!this.arrContent[cType]) {
+				return;
 			}
-			s += '</tr>';
-			var tr = $(s);
-			if (actionDb) {
-				var st = $('<td style=""></td>');
-				for (var i = 0; i < actionDb.length; i++) {
-					if (i > 0) {
-						st.append($('<span>&nbsp;&nbsp;</span>'));
-					}
-					var func = actionDb[i][1];
-					var arg  = arr[showDb.key];
-					sa = $('<a href="javascript:void(0);">' + actionDb[i][0] + '</a>');
-					sa[0].doFunc = func;
-					sa[0].doArg  = arg;
-					sa.click(function(e){ this.doFunc(this.doArg); });
-					st.append(sa);
+			if (this.nowContent)
+				this.nowContent.hide();
+			this.arrContent[cType].show();
+			this.nowContent = this.arrContent[cType];
+		},
+		// 注册正文内空对象
+		'regContent': function(cType, ob) {
+			this.arrContent[cType] = ob;
+		},
+		// 显示指定的节点内容
+		// 	@parames
+		// 		dTitle  标题节点名称
+		// 		dHead   菜单列表节点名称
+		// 		dBody   正文节点名称
+		// 		showDb	要在指定节点生成的内容数据
+		// 			{
+		// 				title: '' 标题
+		// 				menus: [['名称', 宽度]...] 菜单
+		// 				dbs:   [数据列]
+		// 				key:   查询的主键
+		// 			}
+		//		actionDb 要生成的动作函数
+		'createTable': function(dTitle, dHead, dBody, showDb, actionDb) {
+			dTitle.text(showDb.title);
+			dHead.empty();
+			dBody.empty();
+			// 创建标题
+	        var sHead = "<tr>";
+	        for (var k in showDb.menus) {
+	        	var t = showDb.menus[k];
+	        	if (t[1] > 0) {
+	        		sHead += '<th style="width:' + t[1] + 'px;">' + t[0] + '</th>';
+	        	} else {
+	        		sHead += '<th>' + t[0] + '</th>';
+	        	}
+	        }
+	        if (actionDb) {
+	        	var wh = '150px';
+	        	if (actionDb.length > 2) {
+	        		wh = '200px';
+	        	}
+	        	sHead += '<th style="width:' + wh + '">操作</th>'
+	        }
+	        sHead += "</tr>";
+			dHead.append($(sHead));
+			// 添加正文
+			var dbs = showDb.dbs;
+			for (var k in dbs) {
+				var arr = dbs[k];
+				var s = '<tr>';
+				for (var t in arr) {
+					s += '<td>' + arr[t] + '</td>';
 				}
-				tr.append(st);
+				s += '</tr>';
+				var tr = $(s);
+				if (actionDb) {
+					var st = $('<td style=""></td>');
+					for (var i = 0; i < actionDb.length; i++) {
+						if (i > 0) {
+							st.append($('<span>&nbsp;&nbsp;</span>'));
+						}
+						var func = actionDb[i][1];
+						var arg  = arr[showDb.key];
+						sa = $('<a href="javascript:void(0);">' + actionDb[i][0] + '</a>');
+						sa[0].doFunc = func;
+						sa[0].doArg  = arg;
+						sa.click(function(e){ this.doFunc(this.doArg); });
+						st.append(sa);
+					}
+					tr.append(st);
+				}
+				dBody.append(tr);
 			}
-			dBody.append(tr);
 		}
 	};
-	// 清除列表信息
-	Gv.Content.clearTableList = function(md) {
-
+	// 显示提示信息
+	Gv.DialogMsg = {
+		// 显示带有勾选的按钮
+		'showOkMsg': function(msg) {
+			$('#alertModalTitle').text("提示");
+			// $('#alertModalIcon').attr("class", "glyphicon glyphicon-ok-circle");
+			$('#alertModalBody').css('color', "	#000000");
+			this.showMsg(msg);
+		},
+		'showErrMsg': function(msg) {
+			$('#alertModalTitle').text("错误");
+			// $('#alertModalIcon').attr("class", "glyphicon glyphicon-remove-circle");
+			$('#alertModalBody').css('color', "#B22222");
+			this.showMsg(msg);
+		},
+		// 显示提示信息
+		'showMsg': function(msg) {
+			$('#alertModalBody').text(msg);
+			$('#alertModal').modal('show');
+		}
 	};
-
 })(Gv || (Gv = {}));
 
 // 游戏列表窗口对象
@@ -250,10 +267,15 @@ var Gv;
 			console.log("要查看：", this.mName, " gId:", gId);
 		},
 		setGame: function(gId) {
-			// 设定为选中的游戏
-			// console.log("选中ID", gId);
 			this.SELECT_GAME = gId;
-			$('#alertModal').modal("show");
+			Gm.send('game set game ' + gId, function(jsondb) {
+				if (jsondb.RES != true) {
+					Gv.DialogMsg.showErrMsg(jsondb.MSG);
+				} else {
+					Gv.DialogMsg.showOkMsg("选择游戏操作成功！");
+					$('#spMainGameName').text(jsondb.DBs);
+				}
+			});
 		}
 	};
 	Gv.Content.regContent('gameList', WinContent);
@@ -271,11 +293,15 @@ var Gv;
 			$('#contGameList').hide();
 		},
 		'showDb': function(jsondb) {
-			Gv.Content.createTable($('#contGameListTitle'), $('#contGameListHead'), $('#contGameListBody'), jsondb.DBs, [
-				['选定', function(zId) {
-					WinContent.setZone(zId);
-				}]
-			]);
+			if (jsondb.RES == true) {
+				Gv.Content.createTable($('#contGameListTitle'), $('#contGameListHead'), $('#contGameListBody'), jsondb.DBs, [
+					['选定', function(zId) {
+						WinContent.setZone(zId);
+					}]
+				]);
+			} else {
+				Gv.DialogMsg.showErrMsg(jsondb.MSG);
+			}
 		},
 		'setZone': function(zId) {
 			console.log("ZONE ID:", zId);

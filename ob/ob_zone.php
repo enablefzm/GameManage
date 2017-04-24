@@ -34,5 +34,24 @@ class ob_zone {
             'zoneDate' => $this->zoneDate
         );
     }
+
+    public function getZoneID() {
+        return $this->zoneID;
+    }
+
+    public function getZoneName() {
+        return $this->zoneName;
+    }
+
+    public function getGameID() {
+        return $this->gameID;
+    }
+
+    static public function getZone($zoneId) {
+        $rss = ob_conn_connect::GetConn()->query("zones", "id=".$zoneId);
+        if (count($rss) != 1)
+            return null;
+        return new ob_zone($rss[0]);
+    }
 }
 ?>

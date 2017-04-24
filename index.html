@@ -13,11 +13,11 @@
         <!-- GameManage css -->
         <link href="css/gamemanage.css" rel="stylesheet">
         <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-        <script src="js/jquery_2_1_1/jquery.min.js"></script>
+        <script src="js/jquery_2_1_1/jquery.min.js" type="text/javascript"></script>
         <!-- Include all compiled plugins (below), or include individual files as needed -->
-        <script src="js/bootstrap.min.js"></script>
+        <script src="js/bootstrap.min.js" type="text/javascript"></script>
         <!-- Include gamemanage.js -->
-        <script src="js/gamemanage.js"></script>
+        <script src="js/gamemanage.js" type="text/javascript"></script>
 
     </head>
     <body>
@@ -102,15 +102,15 @@
                 <span id="spLoginInfo"></span>
             </div>
         </div>
-        <!-- 模态框 -->
+        <!-- 模态框 <i class="glyphicon glyphicon-exclamation-sign" id="alertModalIcon"></i> -->
         <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title" id="myModalLabel">提示</h4>
+                        <h4 class="modal-title" id="alertModalTitle">提示</h4>
                     </div>
-                    <div class="modal-body">你需要先选择你要管理的游戏和游戏分区！</div>
+                    <div class="modal-body" id="alertModalBody"></div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
                     </div>
