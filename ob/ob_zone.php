@@ -35,6 +35,10 @@ class ob_zone {
         );
     }
 
+    public function getID() {
+        return $this->id;
+    }
+
     public function getZoneID() {
         return $this->zoneID;
     }
@@ -47,8 +51,9 @@ class ob_zone {
         return $this->gameID;
     }
 
-    static public function getZone($zoneId) {
-        $rss = ob_conn_connect::GetConn()->query("zones", "id=".$zoneId);
+    static public function getZone($id) {
+        $id = floor($id);
+        $rss = ob_conn_connect::GetConn()->query("zones", "id=".$id);
         if (count($rss) != 1)
             return null;
         return new ob_zone($rss[0]);

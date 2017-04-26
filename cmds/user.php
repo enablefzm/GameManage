@@ -15,7 +15,10 @@ class user implements ob_ifcmd {
                 }
                 $obUser = ob_user::GetUserInUid($uid);
                 $obRes  = ob_conn_res::GetRes("USERINFO");
-                $obRes->SetDBs($obUser->GetUserInfo());
+                $userInfo = $obUser->GetUserInfo();
+                // 获取已选中的Zone信息
+                $userInfo['SelectGameInfo'] = ob_session::getSelectGameAndZoneInfo();
+                $obRes->SetDBs($userInfo);
                 return $obRes;
                 break;
         }

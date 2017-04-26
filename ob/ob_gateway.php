@@ -14,7 +14,6 @@ class ob_gateway {
             $res = ob_conn_res::GetResAndSet("SYSTEM", false, '错误：接口类型'.$type.'的'.$actName.'不存在。');
             echo $res->ToJson();
             die(0);
-            return false;
         }
         require_once $file;
         return true;
@@ -50,6 +49,22 @@ class ob_gateway {
         }
         $obname = '\\'.$gamekey.'\\game';
         return new $obname($rss[0]);
+    }
+
+    /**
+     *  获取SESS里获游戏帐号管理对象
+     *  @return ob_inter_gameuser
+     */
+    static public function newGameUserOnSess() {
+        $gameKey = ob_session::GetSelectGameKey();
+        if (!$gameKey) {
+            echo ob_conn_res::CreateSystemError('你还未选择要操作的游戏或着要被操作的游戏不存在。')->ToJson();
+            die(0);
+        }
+        // 预加载接口文件
+        self::requireGateWay($gameKey, 'gameuser');
+        $obname = '\\'.$gameKey.'\\gameuser';
+        return new $obname();
     }
 }
 

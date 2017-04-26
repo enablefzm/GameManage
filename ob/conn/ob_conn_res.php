@@ -38,6 +38,15 @@ class ob_conn_res {
         $ob->SetRes($res, $msg);
         return $ob;
     }
+
+    /**
+     * 创建系统级别的错误
+     * @param msg $msg
+     * @return ob_conn_res
+     */
+    static public function CreateSystemError($msg) {
+        return self::GetResAndSet("SYSTEMERROR", false, $msg);
+    }
 }
 
 ?>

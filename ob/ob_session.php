@@ -90,6 +90,47 @@ class ob_session {
     static public function getZoneID() {
         return self::GetSess()->getGameZoneID();
     }
+
+    // 获取已选择的游戏和Zone信息
+    //  @return
+    //      string  游戏名-分区名
+    static public function getSelectGameAndZoneInfo() {
+        $obSess = self::GetSess();
+        $gameId = $obSess->getGameID();
+        $result = array('', '');
+        if (!$gameId)
+            return $result;
+        $obGame = ob_game::getGame($gameId);
+        if (!$obGame)
+            return $result;
+        $result[0] = $obGame->getName();
+        // 获取区名称
+        $zId = $obSess->getGameZoneID();
+        if (!$zId)
+            return $result;
+        $obZone = ob_zone::getZone($zId);
+        if ($obZone) {
+            $result[1] = $obZone->getZoneName();
+        }
+        return $result;
+    }
+
+    /**
+     * 获得游戏SESS里选定的游戏名的Key
+     *  @return
+     *      null | string
+     */
+    static public function GetSelectGameKey() {
+        $gameID = self::GetSess()->getGameID();
+        if (!$gameID) {
+            return null;
+        }
+        $obGame = ob_game::getGame(floor($gameID));
+        if (!$obGame) {
+            return null;
+        }
+        return $obGame->getGameKey();
+    }
 }
 
 ?>

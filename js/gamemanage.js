@@ -34,6 +34,10 @@ var Gm;
 			'id': 0,
 			'uid': '',
 			'name': ''
+		},
+		'SelectGame': {
+			'game': null,
+			'zone': null
 		}
 	};
 	GM.OBs = {
@@ -127,8 +131,17 @@ var Gv;
 			Gm.DBs.User.uid = jsondb.DBs.uid;
 			Gm.DBs.User.name = jsondb.DBs.name;
 			$('#spMainUserName').text(Gm.DBs.User.name);
+			// 显示已选中的游戏
+			var tSelectGame = jsondb.DBs.SelectGameInfo;
+			if (tSelectGame) {
+				Gv.showSelectGameAndZone(tSelectGame[0], tSelectGame[1]);
+			}
 			// 执行显示游戏列表
-			Gv.Content.showContent('gameList');
+			if (tSelectGame[0] && tSelectGame[0].length > 0) {
+				Gv.Content.showContent('zoneList');
+			} else {
+				Gv.Content.showContent('gameList');
+			}
 		});
 	};
 	// 显示登入界面下面的提示信息
@@ -136,18 +149,30 @@ var Gv;
 		$('#divLoginInfo').show();
 		$('#spLoginInfo').html(msg);
 	};
+	Gv.showSelectGameAndZone = function(gameName, zoneName) {
+		Gm.DBs.SelectGame.game = gameName;
+		Gm.DBs.SelectGame.zone = zoneName;
+		var tName = "未选定";
+		if (gameName && gameName.length > 0) {
+			tName = gameName;
+			if (zoneName && zoneName.length > 0) {
+				tName += " -" + zoneName;
+			}
+		}
+		$('#spMainGameName').text(tName);
+	};
 	// 显示中区管理
 	Gv.Content = {
 		'nowContent': null,
 		'arrContent': {},
 		// 显示不同区的内容
-		'showContent': function(cType) {
+		'showContent': function(cType, args) {
 			if (!this.arrContent[cType]) {
 				return;
 			}
 			if (this.nowContent)
 				this.nowContent.hide();
-			this.arrContent[cType].show();
+			this.arrContent[cType].show(args);
 			this.nowContent = this.arrContent[cType];
 		},
 		// 注册正文内空对象
@@ -218,6 +243,14 @@ var Gv;
 				}
 				dBody.append(tr);
 			}
+		},
+
+		'showTable': function(showTableDb, actionDb) {
+			this.createTable($('#contGameListTitle'), $('#contGameListHead'), $('#contGameListBody'), showTableDb, actionDb);
+		},
+		// 添加查找对象
+		'addSearch': function() {
+
 		}
 	};
 	// 显示提示信息
@@ -231,13 +264,12 @@ var Gv;
 		},
 		'showErrMsg': function(msg) {
 			$('#alertModalTitle').text("错误");
-			// $('#alertModalIcon').attr("class", "glyphicon glyphicon-remove-circle");
 			$('#alertModalBody').css('color', "#B22222");
 			this.showMsg(msg);
 		},
 		// 显示提示信息
 		'showMsg': function(msg) {
-			$('#alertModalBody').text(msg);
+			$('#alertModalBody').html(msg);
 			$('#alertModal').modal('show');
 		}
 	};
@@ -272,15 +304,17 @@ var Gv;
 				if (jsondb.RES != true) {
 					Gv.DialogMsg.showErrMsg(jsondb.MSG);
 				} else {
-					Gv.DialogMsg.showOkMsg("选择游戏操作成功！");
+					Gv.DialogMsg.showOkMsg("选择游戏操作成功！请选择要操作的分区。");
 					$('#spMainGameName').text(jsondb.DBs);
+					// 转向游戏分区选项
+					Gv.Content.showContent('zoneList');
 				}
 			});
 		}
 	};
 	Gv.Content.regContent('gameList', WinContent);
 }());
-
+// 分区列表
 (function() {
 	var WinContent = {
 		'show': function() {
@@ -304,9 +338,54 @@ var Gv;
 			}
 		},
 		'setZone': function(zId) {
-			console.log("ZONE ID:", zId);
+			Gm.send('game set zone ' + zId, function(jsondb) {
+				if (jsondb.RES != true) {
+					Gv.DialogMsg.showErrMsg(jsondb.MSG);
+				} else {
+					Gv.DialogMsg.showOkMsg("游戏分区选定成功！");
+					Gv.showSelectGameAndZone(jsondb.DBs[0], jsondb.DBs[1]);
+				}
+			});
 		}
 	}
 	Gv.Content.regContent('zoneList', WinContent);
 	Gm.OBs.regOB('ZONE', WinContent);
+}());
+// 帐号列表
+(function() {
+	var UserContent = {
+		// options
+		//		act: list | search | disuser
+		//		page:
+		'show': function(options) {
+			$('#contGameList').show();
+			if (!options) {
+				options = {};
+			}
+			console.log(options);
+			page = 1;
+			if (options['page']) {
+				page = Math.floor(options['page']);
+				if (page < 1) {
+					page = 1;
+				}
+			}
+			Gm.send('gameuser list ' + page, function(jsondb) {
+				if (jsondb.RES != true) {
+					Gv.DialogMsg.showErrMsg(jsondb.MSG);
+					return;
+				}
+				Gv.Content.showTable(jsondb.DBs, [
+					['编辑', function(guid) {
+						console.log("选中GUID为：", guid);
+					}]
+				]);
+			});
+		},
+		'hide': function() {
+			$('#contGameList').hide();
+		}
+	}
+	Gv.Content.regContent('userList', UserContent);
+	// Gm.OBs.regOB('USERLIST', UserContent);
 }());

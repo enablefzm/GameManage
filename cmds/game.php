@@ -66,7 +66,7 @@ class game implements ob_ifcmd {
                             }
                             // 写入GAME
                             $obSess = ob_session::GetSess();
-                            $obSess->setGameZoneID($obGame->getID(), $obZone->getZoneID());
+                            $obSess->setGameZoneID($obGame->getID(), $obZone->getID());
                             $obRes = ob_conn_res::GetRes("ZONESET");
                             $obRes->SetDBs(array($obGame->getName(), $obZone->getZoneName()));
                             return $obRes;

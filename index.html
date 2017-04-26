@@ -31,11 +31,10 @@
                         <div class="navbar-brand" style="color: #000000;padding-left: 15px;"><span id="spMainAppName" style="font-weight:bold;">-</span> <small id="spMainAppVer">-</small></div>
                     </div>
                     <ul class="nav navbar-nav navbar-right">
-                        <li ><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('gameList');" ><span class="glyphicon glyphicon-tasks"></span> <span id="spMainGameName">未选定</span> </a></li>
+                        <li ><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('gameList');" ><span class="glyphicon glyphicon-tasks"></span> <span id="spMainGameName"></span> </a></li>
                         <li ><a href="javascript:void(0);" ><span class="glyphicon glyphicon-user"></span> <span id="spMainUserName">-</span> </a></li>
                         <li id="btnLoginOut"><a href="#"><span class="glyphicon glyphicon-log-out"></span> 退出</a></li>
                     </ul>
-                    <!-- <sapn class="navbar-text navbar-right">游戏：<span id="spMainGameName">-  </span><i class="glyphicon glyphicon-user"></i>&nbsp;<span id="spMainUserName">-</span></span> -->
                   </div>
                 </nav>
             </div>
@@ -52,10 +51,16 @@
                                         <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('gameList');"><i class="glyphicon glyphicon-list"></i> 游戏列表</a></li>
                                         <!-- <li><a href="#"><i class="glyphicon glyphicon-plus"></i> 新增游戏</a></li> -->
                                         <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('zoneList');"><i class="glyphicon glyphicon-list-alt"></i> 游戏分区</a></li>
-                                        <li><a href="#"><i class="glyphicon glyphicon-plus"></i> 新增分区</a></li>
+                                        <!-- <li><a href="#"><i class="glyphicon glyphicon-plus"></i> 新增分区</a></li> -->
                                     </ul>
                                 </li>
-                                <li><a href="#"><i class="glyphicon glyphicon-globe"></i> 分发配置<span class="label label-warning pull-right">5</span></a></li>
+                                <!-- <li><a href="#"><i class="glyphicon glyphicon-globe"></i> 分发配置<span class="label label-warning pull-right">5</span></a></li> -->
+                                <li><a href="#mnuUserManage" class="nav-header collapsed" data-toggle="collapse"><i class="glyphicon glyphicon-user" ></i> 帐号管理<span class="pull-right glyphicon glyphicon-chevron-down"></span></a>
+                                    <ul id="mnuUserManage" class="nav nav-list collapse secondmenu" style="height: 0px;">
+                                        <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('userList');"><i class="glyphicon glyphicon-list"></i> 帐号列表</a></li>
+                                        <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('userList', {'options': 'disuser'});"><i class="glyphicon glyphicon-ban-circle"></i> 封号列表</a></li>
+                                    </ul>
+                                </li>
                                 <li><a href="#"><i class="glyphicon glyphicon-calendar"></i> 图表统计</a></li>
                                 <li><a href="#"><i class="glyphicon glyphicon-fire"></i> 关于系统</a></li>
                                 <li><a href="#systemSetting" class="nav-header collapsed" data-toggle="collapse"><i class="glyphicon glyphicon-cog"></i> 系统管理<span class="pull-right glyphicon glyphicon-chevron-down"></span></a>
@@ -75,6 +80,13 @@
 
             <!-- 正文内容 -->
             <div id="mainRightContend" style="margin-top: 5px;margin-left: 20px; margin-right: 20px;">
+                <div class="input-group col-md-3" style="margin-top: 10px;margin-bottom: 10px; margin-right: 10px;">
+                    <input type="text" class="form-control" placeholder="请输入字段名" / >
+                    <span class="input-group-btn">
+                        <button class="btn btn-info btn-search">查找</button>
+                        <button class="btn btn-info btn-search" style="margin-left:3px">添加</button>
+                    </span>
+                </div>
                 <table class="table table-striped" id="contGameList">
                     <caption id="contGameListTitle"></caption>
                     <thead id="contGameListHead"></thead>
@@ -118,5 +130,22 @@
             </div>
         </div>
         <!-- 模态框结束 -->
+        <!-- 模态框增加游戏分区界面 -->
+        <div class="modal fade" id="modalAddGame" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="modalAddZoneTitle">新增分区</h4>
+                    </div>
+                    <div class="modal-body">添加要增加的内容</div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary">提交更改</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 模态框增加游戏分区界面结束 -->
     </body>
 </html>

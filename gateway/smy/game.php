@@ -7,6 +7,7 @@ class game extends \ob_game implements \ob_inter_game {
     public function __construct($rs) {
         parent::__construct($rs);
     }
+
     public function getListZoneResDb() {
         $res = new \ob_res('分区列表');
         $res->addMenu('系统ID', 80);
@@ -17,11 +18,11 @@ class game extends \ob_game implements \ob_inter_game {
         $res->addMenu('创建时间', 0);
         $rss = \ob_conn_connect::GetConn()->query('zones', 'gameID='.$this->getID());
         foreach ($rss as $k => $rs) {
-            $ob = \ob_gateway::newZone($this->getGameKey(), $rss[0]);
+            $ob = \ob_gateway::newZone($this->getGameKey(), $rs);
             $info = $ob->getInfo();
             $res->addDb(array(
                 $info['id'],
-                $info['gameID'],
+                $info['zoneID'],
                 $this->getName(),
                 $info['zoneName'],
                 '在线',
