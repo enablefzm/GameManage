@@ -246,11 +246,18 @@ var Gv;
 		},
 
 		'showTable': function(showTableDb, actionDb) {
+			$('#contGameListSearch').hide();
 			this.createTable($('#contGameListTitle'), $('#contGameListHead'), $('#contGameListBody'), showTableDb, actionDb);
 		},
 		// 添加查找对象
-		'addSearch': function() {
-
+		//	options {
+		//		''
+		//	}
+		//
+		'showSearch': function(options) {
+			var idName = '#contGameListSearch';
+			$(idName).show();
+			$(idName).find('input').attr("placeholder", "这是个测试");
 		}
 	};
 	// 显示提示信息
@@ -289,7 +296,7 @@ var Gv;
 			$('#contGameList').hide();
 		},
 		'showDb': function(jsondb) {
-			Gv.Content.createTable($('#contGameListTitle'), $('#contGameListHead'), $('#contGameListBody'), jsondb.DBs, [
+			Gv.Content.showTable(jsondb.DBs, [
 				['选定', function(gid) {
 					WinContent.setGame(gid);
 				}]
@@ -328,7 +335,7 @@ var Gv;
 		},
 		'showDb': function(jsondb) {
 			if (jsondb.RES == true) {
-				Gv.Content.createTable($('#contGameListTitle'), $('#contGameListHead'), $('#contGameListBody'), jsondb.DBs, [
+				Gv.Content.showTable(jsondb.DBs, [
 					['选定', function(zId) {
 						WinContent.setZone(zId);
 					}]
@@ -380,6 +387,7 @@ var Gv;
 						console.log("选中GUID为：", guid);
 					}]
 				]);
+				Gv.Content.showSearch();
 			});
 		},
 		'hide': function() {

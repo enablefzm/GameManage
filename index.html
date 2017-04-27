@@ -80,15 +80,23 @@
 
             <!-- 正文内容 -->
             <div id="mainRightContend" style="margin-top: 5px;margin-left: 20px; margin-right: 20px;">
-                <div class="input-group col-md-3" style="margin-top: 10px;margin-bottom: 10px; margin-right: 10px;">
-                    <input type="text" class="form-control" placeholder="请输入字段名" / >
-                    <span class="input-group-btn">
-                        <button class="btn btn-info btn-search">查找</button>
-                        <button class="btn btn-info btn-search" style="margin-left:3px">添加</button>
-                    </span>
-                </div>
                 <table class="table table-striped" id="contGameList">
-                    <caption id="contGameListTitle"></caption>
+                    <caption id="contGameListTitle" style="font-weight: bold;font-size: 16px;"></caption>
+                    <caption id="contGameListSearch" style="margin-bottom: 10px;display: none;">
+                        <div class="input-group col-md-3">
+                            <input type="text" class="form-control" placeholder="请输入字段名" / >
+                            <span class="input-group-btn">
+                            <select class="form-control" style="width: 120px; margin-left: 3px;border-radius: 0px;">
+                                <option>用户ID</option>
+                                <option>用户手机</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
+                            </select>
+                                <button class="btn btn-info btn-search" style="margin-left:3px;background-color: #555;border-color: #333;">查找</button>
+                            </span>
+                        </div>
+                    </caption>
                     <thead id="contGameListHead"></thead>
                     <tbody id="contGameListBody"></tbody>
                 </table>
