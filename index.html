@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
 
-        <title>-</title>
+        <title>Loading...</title>
 
         <!-- Bootstrap -->
         <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -31,7 +31,7 @@
                         <div class="navbar-brand" style="color: #000000;padding-left: 15px;"><span id="spMainAppName" style="font-weight:bold;">-</span> <small id="spMainAppVer">-</small></div>
                     </div>
                     <ul class="nav navbar-nav navbar-right">
-                        <li ><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('gameList');" ><span class="glyphicon glyphicon-tasks"></span> <span id="spMainGameName"></span> </a></li>
+                        <li ><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('gameList');" ><span class="glyphicon glyphicon-tasks"></span> <span id="spMainGameName" style="color: #a94442;"></span> </a></li>
                         <li ><a href="javascript:void(0);" ><span class="glyphicon glyphicon-user"></span> <span id="spMainUserName">-</span> </a></li>
                         <li id="btnLoginOut"><a href="#"><span class="glyphicon glyphicon-log-out"></span> 退出</a></li>
                     </ul>
@@ -82,18 +82,18 @@
             <div id="mainRightContend" style="margin-top: 5px;margin-left: 20px; margin-right: 20px;">
                 <table class="table table-striped" id="contGameList">
                     <caption id="contGameListTitle" style="font-weight: bold;font-size: 16px;"></caption>
-                    <caption id="contGameListSearch" style="margin-bottom: 10px;display: none;">
-                        <div class="input-group col-md-3">
-                            <input type="text" class="form-control" placeholder="请输入字段名" / >
+                    <caption id="contGameListSearch" style="display: none;">
+                        <div class="input-group col-md-3" style="width: 30%;">
+                            <input type="text" class="form-control" placeholder="请输入查找值" / >
                             <span class="input-group-btn">
-                            <select class="form-control" style="width: 120px; margin-left: 3px;border-radius: 0px;">
+                            <select class="form-control" style="width: 120px; margin-left: 5px;border-radius: 0px;">
                                 <option>用户ID</option>
                                 <option>用户手机</option>
                                 <option>3</option>
                                 <option>4</option>
                                 <option>5</option>
                             </select>
-                                <button class="btn btn-info btn-search" style="margin-left:3px;background-color: #555;border-color: #333;">查找</button>
+                                <button class="btn btn-info btn-search" style="margin-left:5px;background-color: #555;border-color: #333;width: 90px;">查找</button>
                             </span>
                         </div>
                     </caption>

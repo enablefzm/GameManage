@@ -250,14 +250,33 @@ var Gv;
 			this.createTable($('#contGameListTitle'), $('#contGameListHead'), $('#contGameListBody'), showTableDb, actionDb);
 		},
 		// 添加查找对象
-		//	options {
-		//		''
+		//	parames {
+		//		'options': {[val, text]}
 		//	}
 		//
-		'showSearch': function(options) {
+		'showSearch': function(parames) {
 			var idName = '#contGameListSearch';
+			if (!parames)
+				parames = {};
+			if (parames.placeholder) {
+				$(idName).find('input').attr("placeholder", parames.placeholder);
+			} else {
+				$(idName).find('input').attr("placeholder", "请输入查找值");
+			}
+
+			// $(idName).find('select').empty();
+			var tSelect = $(idName).find('select');
+			tSelect.empty();
+			if (parames.options) {
+				$(idName).find("select").show();
+				for (var k in parames.options) {
+					var arr = parames.options[k];
+					$(idName).find("select").append("<option value='" + arr[0] + "'>" + arr[1] + "</option>");
+				}
+			} else {
+				$(idName).find("select").hide();
+			}
 			$(idName).show();
-			$(idName).find('input').attr("placeholder", "这是个测试");
 		}
 	};
 	// 显示提示信息
@@ -361,14 +380,28 @@ var Gv;
 // 帐号列表
 (function() {
 	var UserContent = {
+		'act': 'list';
+		'search': '';
+
 		// options
-		//		act: list | search | disuser
-		//		page:
+		// 	search: [val]
+		//	act: 	list | disuser
+		//	page: 	[val]
 		'show': function(options) {
 			$('#contGameList').show();
 			if (!options) {
 				options = {};
 			}
+			switch (options.act) {
+				case 'list':
+				case 'disuser':
+					this.act = options.act;
+					break;
+			}
+			if (options.search) {
+				this.search = options.search;
+			}
+
 			console.log(options);
 			page = 1;
 			if (options['page']) {
@@ -387,13 +420,22 @@ var Gv;
 						console.log("选中GUID为：", guid);
 					}]
 				]);
-				Gv.Content.showSearch();
+				Gv.Content.showSearch({
+					'options': [['uid', '帐号ID'], ['phone', '手机号']],
+					"placeholder": "查找用户帐号",
+					'func': function(findType, findValue) {
+						UserContent.doSerach(findType, findValue);
+					}
+				});
 			});
 		},
 		'hide': function() {
 			$('#contGameList').hide();
+		},
+		doSerach: function(findType, findValue) {
+			console.log("查找", findType, "值为", findValue);
 		}
 	}
 	Gv.Content.regContent('userList', UserContent);
-	// Gm.OBs.regOB('USERLIST', UserContent);
+	Gm.OBs.regOB('USERLIST', UserContent);
 }());
