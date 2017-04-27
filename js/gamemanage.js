@@ -380,14 +380,13 @@ var Gv;
 // 帐号列表
 (function() {
 	var UserContent = {
-		'act': 'list';
-		'search': '';
-
+		act: 'list',
+		search: '',
 		// options
 		// 	search: [val]
 		//	act: 	list | disuser
 		//	page: 	[val]
-		'show': function(options) {
+		show: function(options) {
 			$('#contGameList').show();
 			if (!options) {
 				options = {};
@@ -429,9 +428,10 @@ var Gv;
 				});
 			});
 		},
-		'hide': function() {
+		hide: function() {
 			$('#contGameList').hide();
 		},
+
 		doSerach: function(findType, findValue) {
 			console.log("查找", findType, "值为", findValue);
 		}
