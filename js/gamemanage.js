@@ -30,14 +30,38 @@ var Gm;
 
 	// 玩家信息数据
 	GM.DBs = {
-		'User': {
-			'id': 0,
-			'uid': '',
-			'name': ''
+		User: {
+			id: 0,
+			uid: '',
+			name: ''
 		},
-		'SelectGame': {
-			'game': null,
-			'zone': null
+		SelectGame: {
+			game: null,
+			zone: null
+		}
+	};
+	// 获取查询KEY
+	GM.GameUserSearch = {
+		searchs: {},
+		getSearch: function(game, funcBack) {
+			if (this.searchs[game]) {
+				funcBack(this.searchs[game]);
+			} else {
+				// 返回
+				GM.send("gameuser getsearch", function(jsondb) {
+					console.log("获取新的", game, " 的查询Key值");
+					if (jsondb.RES != true) {
+						Gv.DialogMsg.showErrMsg(jsondb.MSG);
+						return;
+					}
+					var arrSearch = [];
+					for (var k in jsondb.DBs) {
+						arrSearch.push([k, jsondb.DBs[k]]);
+					}
+					GM.GameUserSearch.searchs[game] = arrSearch;
+					funcBack(GM.GameUserSearch.searchs[game]);
+				});
+			}
 		}
 	};
 	GM.OBs = {
@@ -62,6 +86,15 @@ var Gm;
 	GM._sendSuccess = function(jsondb, backFunc) {
 		console.log(jsondb);
 		backFunc(jsondb);
+	};
+	GM.seeGUID = function(guid, backFunc) {
+		this.send("gameuser see " + guid, function(jsondb) {
+			if (jsondb.RES != true) {
+				Gv.DialogMsg.showErrMsg(jsondb.MSG);
+				return;
+			}
+			backFunc(jsondb.DBs);
+		});
 	};
 	GM.sendResult = function(result, backFunc) {
 
@@ -163,10 +196,10 @@ var Gv;
 	};
 	// 显示中区管理
 	Gv.Content = {
-		'nowContent': null,
-		'arrContent': {},
+		nowContent: null,
+		arrContent: {},
 		// 显示不同区的内容
-		'showContent': function(cType, args) {
+		showContent: function(cType, args) {
 			if (!this.arrContent[cType]) {
 				return;
 			}
@@ -176,7 +209,7 @@ var Gv;
 			this.nowContent = this.arrContent[cType];
 		},
 		// 注册正文内空对象
-		'regContent': function(cType, ob) {
+		regContent: function(cType, ob) {
 			this.arrContent[cType] = ob;
 		},
 		// 显示指定的节点内容
@@ -192,7 +225,7 @@ var Gv;
 		// 				key:   查询的主键
 		// 			}
 		//		actionDb 要生成的动作函数
-		'createTable': function(dTitle, dHead, dBody, showDb, actionDb) {
+		createTable: function(dTitle, dHead, dBody, showDb, actionDb) {
 			dTitle.text(showDb.title);
 			dHead.empty();
 			dBody.empty();
@@ -245,16 +278,17 @@ var Gv;
 			}
 		},
 
-		'showTable': function(showTableDb, actionDb) {
+		showTable: function(showTableDb, actionDb) {
 			$('#contGameListSearch').hide();
 			this.createTable($('#contGameListTitle'), $('#contGameListHead'), $('#contGameListBody'), showTableDb, actionDb);
 		},
 		// 添加查找对象
 		//	parames {
-		//		'options': {[val, text]}
+		//		options: {[val, text]},
+		//		selectKey: keyVal
 		//	}
 		//
-		'showSearch': function(parames) {
+		showSearch: function(parames) {
 			var idName = '#contGameListSearch';
 			if (!parames)
 				parames = {};
@@ -263,18 +297,31 @@ var Gv;
 			} else {
 				$(idName).find('input').attr("placeholder", "请输入查找值");
 			}
-
-			// $(idName).find('select').empty();
 			var tSelect = $(idName).find('select');
 			tSelect.empty();
 			if (parames.options) {
 				$(idName).find("select").show();
 				for (var k in parames.options) {
 					var arr = parames.options[k];
-					$(idName).find("select").append("<option value='" + arr[0] + "'>" + arr[1] + "</option>");
+					tSelect.append("<option value='" + arr[0] + "'>" + arr[1] + "</option>");
+				}
+				if (parames.searchKey) {
+					tSelect.val(parames.searchKey);
 				}
 			} else {
-				$(idName).find("select").hide();
+				tSelect.hide();
+			}
+			// 绑定click事件
+			$(idName).find('button').unbind("click");
+			if (parames.searchVal) {
+				$(idName).find('input').val(parames.searchVal);
+			} else {
+				$(idName).find('input').val("");
+			}
+			if (parames.func) {
+				($(idName).find('button').bind("click", function(){
+					parames.func($(idName).find("select").val(), $(idName).find("input").val());
+				}));
 			}
 			$(idName).show();
 		}
@@ -282,39 +329,50 @@ var Gv;
 	// 显示提示信息
 	Gv.DialogMsg = {
 		// 显示带有勾选的按钮
-		'showOkMsg': function(msg) {
+		showOkMsg: function(msg) {
 			$('#alertModalTitle').text("提示");
 			// $('#alertModalIcon').attr("class", "glyphicon glyphicon-ok-circle");
 			$('#alertModalBody').css('color', "	#000000");
 			this.showMsg(msg);
 		},
-		'showErrMsg': function(msg) {
+		showErrMsg: function(msg) {
 			$('#alertModalTitle').text("错误");
 			$('#alertModalBody').css('color', "#B22222");
 			this.showMsg(msg);
 		},
 		// 显示提示信息
-		'showMsg': function(msg) {
+		showMsg: function(msg) {
 			$('#alertModalBody').html(msg);
 			$('#alertModal').modal('show');
 		}
 	};
+	// 显示查看详细页面
+	Gv.UIEditBox = (function(){
+		var divMainName = '#modaEditUserBox';
+		var uiEditBox = function(){};
+		var _proto_ = uiEditBox.prototype;
+		_proto_.show = function(dbInfo) {
+			$('#modaEditUserBox').modal('show');
+			console.log(dbInfo);
+		}
+		return new uiEditBox;
+	}());
 })(Gv || (Gv = {}));
 
 // 游戏列表窗口对象
 (function() {
 	var WinContent = {
-		'SELECT_GAME' : 0,
-		'show': function() {
+		SELECT_GAME : 0,
+		show: function() {
 			$('#contGameList').show();
 			Gm.send('game list', function(jsondb) {
 				WinContent.showDb(jsondb);
 			});
 		},
-		'hide': function() {
+		hide: function() {
 			$('#contGameList').hide();
 		},
-		'showDb': function(jsondb) {
+		showDb: function(jsondb) {
 			Gv.Content.showTable(jsondb.DBs, [
 				['选定', function(gid) {
 					WinContent.setGame(gid);
@@ -343,16 +401,16 @@ var Gv;
 // 分区列表
 (function() {
 	var WinContent = {
-		'show': function() {
+		show: function() {
 			$('#contGameList').show();
 			Gm.send('game zones', function(jsondb) {
 				WinContent.showDb(jsondb);
 			});
 		},
-		'hide': function() {
+		hide: function() {
 			$('#contGameList').hide();
 		},
-		'showDb': function(jsondb) {
+		showDb: function(jsondb) {
 			if (jsondb.RES == true) {
 				Gv.Content.showTable(jsondb.DBs, [
 					['选定', function(zId) {
@@ -363,7 +421,7 @@ var Gv;
 				Gv.DialogMsg.showErrMsg(jsondb.MSG);
 			}
 		},
-		'setZone': function(zId) {
+		setZone: function(zId) {
 			Gm.send('game set zone ' + zId, function(jsondb) {
 				if (jsondb.RES != true) {
 					Gv.DialogMsg.showErrMsg(jsondb.MSG);
@@ -382,6 +440,7 @@ var Gv;
 	var UserContent = {
 		act: 'list',
 		search: '',
+		nowPage: 1,
 		// options
 		// 	search: [val]
 		//	act: 	list | disuser
@@ -396,6 +455,8 @@ var Gv;
 				case 'disuser':
 					this.act = options.act;
 					break;
+				default:
+					this.act = 'list';
 			}
 			if (options.search) {
 				this.search = options.search;
@@ -403,28 +464,40 @@ var Gv;
 
 			console.log(options);
 			page = 1;
-			if (options['page']) {
-				page = Math.floor(options['page']);
+			if (options.page) {
+				page = Math.floor(options.page);
 				if (page < 1) {
 					page = 1;
 				}
 			}
-			Gm.send('gameuser list ' + page, function(jsondb) {
+			this.nowPage = page;
+			Gm.send('gameuser ' + this.act + ' ' + page + ' ' + this.search, function(jsondb) {
 				if (jsondb.RES != true) {
 					Gv.DialogMsg.showErrMsg(jsondb.MSG);
 					return;
 				}
 				Gv.Content.showTable(jsondb.DBs, [
-					['编辑', function(guid) {
-						console.log("选中GUID为：", guid);
+					['查看', function(vGuid) {
+						Gm.seeGUID(vGuid, Gv.UIEditBox.show);
 					}]
 				]);
-				Gv.Content.showSearch({
-					'options': [['uid', '帐号ID'], ['phone', '手机号']],
-					"placeholder": "查找用户帐号",
-					'func': function(findType, findValue) {
+				var searchOption = {
+					placeholder: "查找用户帐号",
+					func: function(findType, findValue) {
 						UserContent.doSerach(findType, findValue);
 					}
+				};
+				if (options.search) {
+					var searchKeys = options.search.split("=");
+					if (searchKeys.length == 2) {
+						searchOption.searchKey = searchKeys[0];
+						searchOption.searchVal = searchKeys[1];
+					}
+				}
+				// 显示查找键值
+				Gm.GameUserSearch.getSearch(Gm.DBs.SelectGame.game, function(searchKeys) {
+					searchOption.options = searchKeys;
+					Gv.Content.showSearch(searchOption);
 				});
 			});
 		},
@@ -433,7 +506,13 @@ var Gv;
 		},
 
 		doSerach: function(findType, findValue) {
-			console.log("查找", findType, "值为", findValue);
+			// 查找的命令
+			//	gameuser <act> <page> <search findType=findValue>
+			this.show({
+				search: findType + "=" + findValue,
+				act: this.act,
+				page: 1
+			});
 		}
 	}
 	Gv.Content.regContent('userList', UserContent);

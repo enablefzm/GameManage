@@ -57,8 +57,8 @@
                                 <!-- <li><a href="#"><i class="glyphicon glyphicon-globe"></i> 分发配置<span class="label label-warning pull-right">5</span></a></li> -->
                                 <li><a href="#mnuUserManage" class="nav-header collapsed" data-toggle="collapse"><i class="glyphicon glyphicon-user" ></i> 帐号管理<span class="pull-right glyphicon glyphicon-chevron-down"></span></a>
                                     <ul id="mnuUserManage" class="nav nav-list collapse secondmenu" style="height: 0px;">
-                                        <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('userList');"><i class="glyphicon glyphicon-list"></i> 帐号列表</a></li>
-                                        <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('userList', {'options': 'disuser'});"><i class="glyphicon glyphicon-ban-circle"></i> 封号列表</a></li>
+                                        <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('userList', {act: 'list', page: 1, search: ''});"><i class="glyphicon glyphicon-list"></i> 帐号列表</a></li>
+                                        <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('userList', {act: 'disuser', page: 1, search: ''});"><i class="glyphicon glyphicon-ban-circle"></i> 封号列表</a></li>
                                     </ul>
                                 </li>
                                 <li><a href="#"><i class="glyphicon glyphicon-calendar"></i> 图表统计</a></li>
@@ -86,13 +86,7 @@
                         <div class="input-group col-md-3" style="width: 30%;">
                             <input type="text" class="form-control" placeholder="请输入查找值" / >
                             <span class="input-group-btn">
-                            <select class="form-control" style="width: 120px; margin-left: 5px;border-radius: 0px;">
-                                <option>用户ID</option>
-                                <option>用户手机</option>
-                                <option>3</option>
-                                <option>4</option>
-                                <option>5</option>
-                            </select>
+                                <select class="form-control" style="width: 120px; margin-left: 5px;border-radius: 0px;"></select>
                                 <button class="btn btn-info btn-search" style="margin-left:5px;background-color: #555;border-color: #333;width: 90px;">查找</button>
                             </span>
                         </div>
@@ -138,22 +132,22 @@
             </div>
         </div>
         <!-- 模态框结束 -->
-        <!-- 模态框增加游戏分区界面 -->
-        <div class="modal fade" id="modalAddGame" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <!-- 模态框查看游戏帐号信息界面 -->
+        <div class="modal fade" id="modaEditUserBox" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title" id="modalAddZoneTitle">新增分区</h4>
+                        <h4 class="modal-title" id="modaEditUserBoxTitle">查看帐号信息</h4>
                     </div>
-                    <div class="modal-body">添加要增加的内容</div>
+                    <div class="modal-body" id="modaEditUserBoxBody">-</div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                        <button type="button" class="btn btn-primary">提交更改</button>
+                        <!-- <button type="button" class="btn btn-primary" id="modaEditUserBoxBtnUpdate">提交更改</button> -->
                     </div>
                 </div>
             </div>
         </div>
-        <!-- 模态框增加游戏分区界面结束 -->
+        <!-- 模态框查看游戏帐号信息界面结束 -->
     </body>
 </html>

@@ -52,10 +52,10 @@ class ob_gateway {
     }
 
     /**
-     *  获取SESS里获游戏帐号管理对象
-     *  @return ob_inter_gameuser
+     * 获取当前SESS里游戏帐号静态对象
+     * @return ob_inter_gameuser
      */
-    static public function newGameUserOnSess() {
+    static public function gameUserOnSess() {
         $gameKey = ob_session::GetSelectGameKey();
         if (!$gameKey) {
             echo ob_conn_res::CreateSystemError('你还未选择要操作的游戏或着要被操作的游戏不存在。')->ToJson();
@@ -64,7 +64,7 @@ class ob_gateway {
         // 预加载接口文件
         self::requireGateWay($gameKey, 'gameuser');
         $obname = '\\'.$gameKey.'\\gameuser';
-        return new $obname();
+        return $obname;
     }
 }
 
