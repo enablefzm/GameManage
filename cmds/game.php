@@ -15,9 +15,9 @@ class game implements ob_ifcmd {
                     }
                     $res = ob_conn_res::GetRes("GAMES");
                     $obResDb = new ob_res('游戏列表');
-                    $obResDb->addMenu('系统ID', 100);
-                    $obResDb->addMenu('游戏名称', 150);
-                    $obResDb->addMenu('游戏键值', 150);
+                    $obResDb->addMenu('系统ID', 0);
+                    $obResDb->addMenu('游戏名称', 0);
+                    $obResDb->addMenu('游戏键值', 0);
                     $obResDb->addMenu('创建时间', 0);
                     $obResDb->setDbs($result);
                     $res->SetDBs($obResDb->getRes());

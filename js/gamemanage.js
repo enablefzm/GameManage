@@ -105,6 +105,13 @@ var Gm;
 	GM.checkIsLogin = function(backFunc) {
 
 	};
+	GM.navPage = function(cmdType, vPage) {
+		switch (cmdType) {
+			case "GAMEUSER_LIST":
+			Gv.Content.showContent('userList', {page: vPage});
+			break;
+		}
+	};
 
 })(Gm || (Gm = {}));
 
@@ -278,9 +285,12 @@ var Gv;
 			}
 		},
 
-		showTable: function(showTableDb, actionDb) {
+		showTable: function(showTableDb, actionDb, cmdType) {
 			$('#contGameListSearch').hide();
+			$('#contGameListPage').hide();
 			this.createTable($('#contGameListTitle'), $('#contGameListHead'), $('#contGameListBody'), showTableDb, actionDb);
+			// 显示分页
+			this.showNavpage(cmdType, showTableDb.navpage);
 		},
 		// 添加查找对象
 		//	parames {
@@ -299,14 +309,19 @@ var Gv;
 			}
 			var tSelect = $(idName).find('select');
 			tSelect.empty();
-			if (parames.options) {
-				$(idName).find("select").show();
+			if (parames.options && parames.options.length > 0) {
 				for (var k in parames.options) {
 					var arr = parames.options[k];
 					tSelect.append("<option value='" + arr[0] + "'>" + arr[1] + "</option>");
 				}
 				if (parames.searchKey) {
 					tSelect.val(parames.searchKey);
+				}
+				if (parames.options.length > 1) {
+					$(idName).find("select").show();
+				} else {
+					$(idName).find("select").val(parames.options[0][0]);
+					$(idName).find("select").hide();
 				}
 			} else {
 				tSelect.hide();
@@ -324,6 +339,39 @@ var Gv;
 				}));
 			}
 			$(idName).show();
+		},
+		// 显示导航分页
+		showNavpage: function(cmdType, parames) {
+			var navPage = $('#contGameListPage');
+			if (parames.pages.length < 1) {
+				return;
+			}
+			navPage.empty();
+			navPage.append($("<li class='previous'><a href='javascript:Gm.navPage(\"" + cmdType + "\", 1);'>&larr;Top</a></li>"));
+			if (parames.nowpage > 1) {
+				navPage.append($("<li><a href='javascript:Gm.navPage(\"" + cmdType + "\", 1);'>&laquo;</a></li>"));
+			} else {
+				navPage.append($("<li class='previous disabled'><a href='javascript:void(0);'>&laquo;</a></li>"));
+			}
+			for (var k in parames.pages) {
+				var tPage = parames.pages[k];
+
+				if (tPage == parames.nowpage) {
+					var t = $("<li><a href='javascript:void(0);'>" + tPage + "</a></li>");
+					t.attr("class", "active");
+				} else {
+					var t = $("<li><a href='javascript:Gm.navPage(\"" + cmdType + "\", " + tPage + ");'>" + tPage + "</a></li>");
+				}
+				navPage.append(t);
+			}
+			if (parames.nowpage  < parames.max) {
+				var next = parames.nowpage + 1;
+				navPage.append($("<li><a href='javascript:Gm.navPage(\"" + cmdType + "\", " + next  + ");'>&raquo;</a></li>"));
+			} else {
+				navPage.append($("<li class='previous disabled'><a href='javascript:void(0);'>&raquo;</a></li>"));
+			}
+			navPage.append($("<li class='next'><a href='javascript:Gm.navPage(\"" + cmdType + "\", " + parames.max + ");'>Last&rarr;</a></li>"));
+			navPage.show();
 		}
 	};
 	// 显示提示信息
@@ -349,12 +397,37 @@ var Gv;
 	// 显示查看详细页面
 	Gv.UIEditBox = (function(){
 		var divMainName = '#modaEditUserBox';
-		var uiEditBox = function(){};
+		var uiEditBox = function(){
+			this.tlbBody = null;
+		};
 		var _proto_ = uiEditBox.prototype;
 		_proto_.show = function(dbInfo) {
 			$('#modaEditUserBox').modal('show');
 			console.log(dbInfo);
-		}
+			if (!this.tlbBody) {
+				this.tlbBody = $('#modaEditUserBoxBody');
+			}
+			this.tlbBody.empty();
+			for (var k in dbInfo) {
+				switch (k) {
+					case "dbs":
+						// this._showDbs(dbInfo[k]);
+						var dbs = dbInfo[k];
+						for (var j in dbs) {
+							this.tlbBody.append($("<tr><td style='font-weight: bold;width: 150px;'>" + j + "</td><td>" + dbs[j][1] + "</td></tr>"));
+						}
+					break;
+					case "func":
+					break;
+				}
+			}
+		};
+		_proto_._showDbs = function(dbs) {
+			for (var k in dbs) {
+				this.tlbBody.append($("<tr><td style='font-weight: bold;width: 150px;'>" + k + "</td><td>" + dbs[k][1] + "</td></tr>"));
+			}
+			console.log("执行", dbs);
+		};
 		return new uiEditBox;
 	}());
 })(Gv || (Gv = {}));
@@ -450,6 +523,7 @@ var Gv;
 			if (!options) {
 				options = {};
 			}
+			console.log(options);
 			switch (options.act) {
 				case 'list':
 				case 'disuser':
@@ -458,11 +532,10 @@ var Gv;
 				default:
 					this.act = 'list';
 			}
-			if (options.search) {
+			if (options.search || options.search == "") {
+				console.log("search ", options.search);
 				this.search = options.search;
 			}
-
-			console.log(options);
 			page = 1;
 			if (options.page) {
 				page = Math.floor(options.page);
@@ -471,24 +544,26 @@ var Gv;
 				}
 			}
 			this.nowPage = page;
+			var self = this;
 			Gm.send('gameuser ' + this.act + ' ' + page + ' ' + this.search, function(jsondb) {
 				if (jsondb.RES != true) {
 					Gv.DialogMsg.showErrMsg(jsondb.MSG);
 					return;
 				}
-				Gv.Content.showTable(jsondb.DBs, [
-					['查看', function(vGuid) {
+				Gv.Content.showTable(
+					jsondb.DBs,
+					[['查看', function(vGuid) {
 						Gm.seeGUID(vGuid, Gv.UIEditBox.show);
-					}]
-				]);
+					}]],
+					jsondb.CMD);
 				var searchOption = {
 					placeholder: "查找用户帐号",
 					func: function(findType, findValue) {
 						UserContent.doSerach(findType, findValue);
 					}
 				};
-				if (options.search) {
-					var searchKeys = options.search.split("=");
+				if (self.search) {
+					var searchKeys = self.search.split("=");
 					if (searchKeys.length == 2) {
 						searchOption.searchKey = searchKeys[0];
 						searchOption.searchVal = searchKeys[1];

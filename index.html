@@ -94,6 +94,7 @@
                     <thead id="contGameListHead"></thead>
                     <tbody id="contGameListBody"></tbody>
                 </table>
+                <div style="text-align: center;"><ul id="contGameListPage" class="pagination"></ul></div>
             </div>
         </div>
         <!-- 管理系统登入界面 -->
@@ -140,7 +141,28 @@
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h4 class="modal-title" id="modaEditUserBoxTitle">查看帐号信息</h4>
                     </div>
-                    <div class="modal-body" id="modaEditUserBoxBody">-</div>
+                    <div class="modal-body">
+                        <table class="table table-striped">
+                            <tbody id="modaEditUserBoxBody">
+                                <tr>
+                                    <td style="font-weight: bold;width: 150px;">系统ID</td>
+                                    <td >1</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: bold;">帐号UID</td>
+                                    <td>enablefzm</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: bold;">手机号</td>
+                                    <td>18150160101</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight: bold;">Email</td>
+                                    <td>welcomehitek@163.com</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
                         <!-- <button type="button" class="btn btn-primary" id="modaEditUserBoxBtnUpdate">提交更改</button> -->

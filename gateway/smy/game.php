@@ -10,11 +10,11 @@ class game extends \ob_game implements \ob_inter_game {
 
     public function getListZoneResDb() {
         $res = new \ob_res('分区列表');
-        $res->addMenu('系统ID', 80);
-        $res->addMenu('分区ID', 80);
-        $res->addMenu('游戏名称', 150);
-        $res->addMenu('分区名称', 150);
-        $res->addMenu('游戏区状态', 100);
+        $res->addMenu('系统ID', 0);
+        $res->addMenu('分区ID', 0);
+        $res->addMenu('游戏名称', 0);
+        $res->addMenu('分区名称', 0);
+        $res->addMenu('游戏区状态', 0);
         $res->addMenu('创建时间', 0);
         $rss = \ob_conn_connect::GetConn()->query('zones', 'gameID='.$this->getID());
         foreach ($rss as $k => $rs) {

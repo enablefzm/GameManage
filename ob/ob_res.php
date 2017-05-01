@@ -1,10 +1,15 @@
 <?php
 // 消息返回格式
 class ob_res {
-    private $title = '';
-    private $menus = array();
-    private $dbs   = array();
-    private $key   = 0;
+    private $title   = '';
+    private $menus   = array();
+    private $dbs     = array();
+    private $key     = 0;
+    private $navpage = array(
+        'max'     => 0,
+        'pages'   => array(),
+        'nowpage' => 0
+    );
 
     public function __construct($title) {
         $this->title = $title;
@@ -21,12 +26,18 @@ class ob_res {
     public function setDbs($dbs) {
         $this->dbs = $dbs;
     }
+    public function setPage($max, $pages, $nowPage) {
+        $this->navpage['max']     = $max;
+        $this->navpage['pages']   = $pages;
+        $this->navpage['nowpage'] = $nowPage;
+    }
     public function getRes() {
         return array(
-            'title' => $this->title,
-            'menus' => $this->menus,
-            'dbs'   => $this->dbs,
-            'key'   => $this->key
+            'title'   => $this->title,
+            'menus'   => $this->menus,
+            'dbs'     => $this->dbs,
+            'key'     => $this->key,
+            'navpage' => $this->navpage
         );
     }
 }

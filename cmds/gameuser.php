@@ -15,7 +15,12 @@ class gameuser implements ob_ifcmd {
                 if ($page < 1) {
                     $page = 1;
                 }
-                return $this->getGameList($page, array('act' => $args[0]));
+                $search = null;
+                if (isset($args[2])) {
+                    $search = $args[2];
+                }
+
+                return $this->getGameList($page, $search);
             // 查询玩家帐号具体信息
             case 'see':
                 if ($il < 2)
@@ -36,12 +41,12 @@ class gameuser implements ob_ifcmd {
         return ob_conn_res::GetResAndSet("GAMEUSER", false, '你想要对玩家帐号做什么？！');
     }
 
-    private function getGameList($page, $searcs) {
+    private function getGameList($page, $search) {
         $keyName = 'GAMEUSER_LIST';
         // 通过SESS里获得网关操作对象
         $obGameUser = ob_gateway::gameUserOnSess();
         $obRes = ob_conn_res::GetRes($keyName);
-        $obRes->SetDBs($obGameUser::getListUserResDb($page, $searcs)->getRes());
+        $obRes->SetDBs($obGameUser::getListUserResDb($page, $search)->getRes());
         return $obRes;
     }
 }
