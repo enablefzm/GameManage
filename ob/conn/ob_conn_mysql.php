@@ -81,8 +81,8 @@ class ob_conn_mysql {
             $count = $this->conn->exec($sql);
         } catch (PDOException $e) {
             // $this->write_connect_log($e->getMessage());
-            echo $e->getMessage().'<br />';
-            return 0;
+            // echo $e->getMessage().'<br />';
+            return -1;
         }
         return $count;
     }

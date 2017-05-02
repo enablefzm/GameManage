@@ -411,6 +411,7 @@ var Gv;
 			this.backFunc = backFunc;
 			$('#alertModalBody').css('color', "	#eea236");
 			$('#alertModalBody').text(msg);
+			$('#alertModalTitle').text("询问");
 			$('#alertModal').modal('show');
 		},
 		doInquiry: function() {
@@ -424,7 +425,8 @@ var Gv;
 	Gv.UIEditBox = (function() {
 		var divMainName = '#modaEditUserBox';
 		var btns = {
-			'F_EDIT_PASS': '#modaEditUserBoxBtnPass'
+			'F_EDIT_PASS': '#modaEditUserBoxBtnPass',
+			'F_FORBIDDEN': '#modaEditUserBoxBtnForbidden'
 		};
 		var uiEditBox = function(){
 			this.tlbBody = null;
@@ -435,6 +437,9 @@ var Gv;
 			if (!this.tlbBody) {
 				this.tlbBody = $('#modaEditUserBoxBody');
 				$(btns['F_EDIT_PASS']).bind('click', function(){ Gv.UIEditPassword.show(Gv.UIEditBox.key); });
+				$(btns['F_FORBIDDEN']).bind('click', function(){
+					Gv.DialogMsg.showInquiry("对玩家进封号和解封号操作，如果已被封号则解除封号反之则进行封号！是否进行操作？", function() {});
+				});
 			}
 			// 清除内容
 			this.tlbBody.empty();

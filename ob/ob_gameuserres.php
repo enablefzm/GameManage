@@ -3,6 +3,7 @@
 class ob_gameuserres {
     const TEXT = 'TEXT';
     const FUN_EDIT_PASS = 'F_EDIT_PASS';
+    const FUN_FORBIDDEN = 'F_FORBIDDEN';
 
     private $dbs   = array();
     private $func  = array();

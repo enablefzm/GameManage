@@ -14,6 +14,7 @@ class gameuser implements \ob_inter_gameuser {
     private $name;
     private $phone;
     private $idCard;
+    private $forbidden;
 
     public function __construct($rs) {
         $this->uid           = $rs['uid'];
@@ -25,6 +26,7 @@ class gameuser implements \ob_inter_gameuser {
         $this->name          = $rs['name'];
         $this->phone         = $rs['phone'];
         $this->idCard        = $rs['id_card'];
+        $this->forbidden     = $rs['forbidden'];
     }
 
     /**
@@ -35,6 +37,7 @@ class gameuser implements \ob_inter_gameuser {
     public function getUserInfo() {
         $obRes = new \ob_gameuserres($this->uid);
         $obRes->addFunc(\ob_gameuserres::FUN_EDIT_PASS);
+        $obRes->addFunc(\ob_gameuserres::FUN_FORBIDDEN);
         $obRes->addDb(\ob_gameuserres::TEXT, '系统ID', $this->uid);
         $obRes->addDb(\ob_gameuserres::TEXT, '帐号UID', $this->username);
         $obRes->addDb(\ob_gameuserres::TEXT, '姓名', $this->name);
@@ -44,6 +47,7 @@ class gameuser implements \ob_inter_gameuser {
         $obRes->addDb(\ob_gameuserres::TEXT, 'Email', $this->email);
         $obRes->addDb(\ob_gameuserres::TEXT, '最后一次登入', date('Y-m-d H:i:s', $this->lastlogintime));
         $obRes->addDb(\ob_gameuserres::TEXT, '注册时间', date('Y-m-d H:i:s', $this->regtime));
+        $obRes->addDb(\ob_gameuserres::TEXT, '是否被封号', ($this->forbidden > 0) ? '被封号' : '未被封号');
         return $obRes;
     }
 
@@ -68,18 +72,19 @@ class gameuser implements \ob_inter_gameuser {
         // 更新UC的密码
         $ucpwd = md5($md5Val.$salt);
         $resCount = $ucConn->updata('uc_members', 'username="'.$this->username.'"', array('password' => $ucpwd));
-        if ($resCount < 1) {
+        if ($resCount < 0) {
             die(\ob_conn_res::CreateSystemError("更新UC平台玩家密码出错 " . $resCount)->ToJson());
             return false;
         }
         // 更新平台的密码
         $res = connect::GetPlatConn()->updata(self::$tlbName, 'uid='.$this->uid, array('password' => $md5Val));
-        if ($res > 0) {
-            return true;
-        } else {
+        if ($res < 0) {
             die(\ob_conn_res::CreateSystemError("更新平台的玩家密码信息出错")->ToJson());
             return false;
+        } else {
+            return true;
         }
+
     }
 
     static private function getPages($max, $page) {
