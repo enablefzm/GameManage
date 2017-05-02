@@ -112,7 +112,15 @@ var Gm;
 			break;
 		}
 	};
-
+	GM.editPassword = function(uid, newpassword) {
+		this.send("gameuser editpass " + uid + ' ' + newpassword, function(jsondb) {
+			if (jsondb.RES != true) {
+				Gv.DialogMsg.showErrMsg(jsondb.MSG);
+				return;
+			}
+			Gv.DialogMsg.showOkMsg(jsondb.MSG);
+		});
+	};
 })(Gm || (Gm = {}));
 
 // GameManageView类
@@ -376,6 +384,7 @@ var Gv;
 	};
 	// 显示提示信息
 	Gv.DialogMsg = {
+		backFunc: null,
 		// 显示带有勾选的按钮
 		showOkMsg: function(msg) {
 			$('#alertModalTitle').text("提示");
@@ -390,24 +399,53 @@ var Gv;
 		},
 		// 显示提示信息
 		showMsg: function(msg) {
+			$('#alertModalBtnOK').hide();
+			$('#alertModalBtnCancel').text("关闭");
 			$('#alertModalBody').html(msg);
 			$('#alertModal').modal('show');
+		},
+		// 显示询问提示框
+		showInquiry: function(msg, backFunc) {
+			$('#alertModalBtnOK').show();
+			$('#alertModalBtnCancel').text("取消");
+			this.backFunc = backFunc;
+			$('#alertModalBody').css('color', "	#eea236");
+			$('#alertModalBody').text(msg);
+			$('#alertModal').modal('show');
+		},
+		doInquiry: function() {
+			if (this.backFunc) {
+				this.backFunc();
+			}
+			$('#alertModal').modal('hide');
 		}
 	};
 	// 显示查看详细页面
-	Gv.UIEditBox = (function(){
+	Gv.UIEditBox = (function() {
 		var divMainName = '#modaEditUserBox';
+		var btns = {
+			'F_EDIT_PASS': '#modaEditUserBoxBtnPass'
+		};
 		var uiEditBox = function(){
 			this.tlbBody = null;
+			this.key      = 0;
 		};
 		var _proto_ = uiEditBox.prototype;
-		_proto_.show = function(dbInfo) {
-			$('#modaEditUserBox').modal('show');
-			console.log(dbInfo);
+		_proto_._init = function() {
 			if (!this.tlbBody) {
 				this.tlbBody = $('#modaEditUserBoxBody');
+				$(btns['F_EDIT_PASS']).bind('click', function(){ Gv.UIEditPassword.show(Gv.UIEditBox.key); });
 			}
+			// 清除内容
 			this.tlbBody.empty();
+			// 隐藏所有按钮
+			for (var bk in btns) {
+				$(btns[bk]).hide();
+			}
+		};
+		_proto_.show = function(dbInfo) {
+			$('#modaEditUserBox').modal('show');
+			this._init();
 			for (var k in dbInfo) {
 				switch (k) {
 					case "dbs":
@@ -416,20 +454,47 @@ var Gv;
 						for (var j in dbs) {
 							this.tlbBody.append($("<tr><td style='font-weight: bold;width: 150px;'>" + j + "</td><td>" + dbs[j][1] + "</td></tr>"));
 						}
-					break;
+						break;
 					case "func":
+						var funcs = dbInfo[k];
+						for (var l in funcs) {
+							if (btns[funcs[l]]) {
+								$(btns[funcs[l]]).show();
+							}
+						}
+						break;
+					case "key":
+						this.key = dbInfo[k];
 					break;
 				}
 			}
 		};
-		_proto_._showDbs = function(dbs) {
-			for (var k in dbs) {
-				this.tlbBody.append($("<tr><td style='font-weight: bold;width: 150px;'>" + k + "</td><td>" + dbs[k][1] + "</td></tr>"));
-			}
-			console.log("执行", dbs);
-		};
 		return new uiEditBox;
 	}());
+	// 修改玩家帐号密码
+	Gv.UIEditPassword = {
+		divMain: null,
+		key: null,
+		show: function(key) {
+			if (this.divMain == null) {
+				this.divMain = $('#modaEditUserBoxPass');
+				var self = this;
+				$("#modaEditUserBtn").bind("click", function() {
+					Gv.DialogMsg.showInquiry("确定要更改这名玩家帐号的登入密码？", function() {
+						window.setTimeout(function(){ self.doEditPassword(); }, 500);
+					});
+				});
+			}
+			this.key = key;
+			this.divMain.modal('show');
+		},
+		doEditPassword: function() {
+			if (this.key) {
+			   	Gm.editPassword(this.key, $('#modaEditUserBoxPassText').val());
+			}
+			this.divMain.modal("hide");
+		}
+	};
 })(Gv || (Gv = {}));
 
 // 游戏列表窗口对象
@@ -553,7 +618,7 @@ var Gv;
 				Gv.Content.showTable(
 					jsondb.DBs,
 					[['查看', function(vGuid) {
-						Gm.seeGUID(vGuid, Gv.UIEditBox.show);
+						Gm.seeGUID(vGuid, function(jsondb) { Gv.UIEditBox.show(jsondb); });
 					}]],
 					jsondb.CMD);
 				var searchOption = {

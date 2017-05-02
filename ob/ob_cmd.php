@@ -34,7 +34,7 @@ class ob_cmd {
             default:
                 if (!$blnLog) {
                     $obRes = ob_conn_res::GetRes("NOLOGIN");
-                    $obRes->SetRes(false, '你还未登 入');
+                    $obRes->SetRes(false, '你还未登入系统');
                     return $obRes;
                 }
         }

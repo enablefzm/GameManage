@@ -31,6 +31,13 @@ interface ob_inter_gameuser {
      * @return ob_gameuserres
      */
     public function getUserInfo();
+
+    /**
+     *  修改玩家帐号的密码
+     *  @param string $newpwd 玩家帐号的新密码
+     *  @return boolean true 表示操作成功
+     */
+    public function updatePassword($newpwd);
 }
 
 ?>

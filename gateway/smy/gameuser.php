@@ -5,19 +5,81 @@ require_once(__DIR__.'/connect.php');
 class gameuser implements \ob_inter_gameuser {
     static private $tlbName = 'zde_members';
 
+    private $uid;
+    private $lastlogintime;
+    private $username;
+    private $email;
+    private $regtime;
+    private $qq;
+    private $name;
+    private $phone;
+    private $idCard;
+
+    public function __construct($rs) {
+        $this->uid           = $rs['uid'];
+        $this->lastlogintime = $rs['lastlogintime'];
+        $this->username      = $rs['username'];
+        $this->email         = $rs['email'];
+        $this->regtime       = $rs['reg_time'];
+        $this->qq            = $rs['qq'];
+        $this->name          = $rs['name'];
+        $this->phone         = $rs['phone'];
+        $this->idCard        = $rs['id_card'];
+    }
+
     /**
      * 获得玩家具体信息
      * !CodeTemplates.overridecomment.nonjd!
      * @see ob_inter_gameuser::getUserInfo()
      */
     public function getUserInfo() {
-        $obRes = new \ob_gameuserres('1');
+        $obRes = new \ob_gameuserres($this->uid);
         $obRes->addFunc(\ob_gameuserres::FUN_EDIT_PASS);
-        $obRes->addDb(\ob_gameuserres::TEXT, '系统ID', '2');
-        $obRes->addDb(\ob_gameuserres::TEXT, '帐号UID', 'jimmyFan');
-        $obRes->addDb(\ob_gameuserres::TEXT, '手机号', '18150160101');
-        $obRes->addDb(\ob_gameuserres::TEXT, 'QQ', '5123736');
+        $obRes->addDb(\ob_gameuserres::TEXT, '系统ID', $this->uid);
+        $obRes->addDb(\ob_gameuserres::TEXT, '帐号UID', $this->username);
+        $obRes->addDb(\ob_gameuserres::TEXT, '姓名', $this->name);
+        $obRes->addDb(\ob_gameuserres::TEXT, '手机号', $this->phone);
+        $obRes->addDb(\ob_gameuserres::TEXT, 'QQ', $this->qq);
+        $obRes->addDb(\ob_gameuserres::TEXT, '身份证号', $this->idCard);
+        $obRes->addDb(\ob_gameuserres::TEXT, 'Email', $this->email);
+        $obRes->addDb(\ob_gameuserres::TEXT, '最后一次登入', date('Y-m-d H:i:s', $this->lastlogintime));
+        $obRes->addDb(\ob_gameuserres::TEXT, '注册时间', date('Y-m-d H:i:s', $this->regtime));
         return $obRes;
+    }
+
+    /**
+     * 修改玩家的新密码
+     * !CodeTemplates.overridecomment.nonjd!
+     * @see ob_inter_gameuser::updatePassword()
+     */
+    public function updatePassword($newpwd) {
+        // 获取UC中心
+        $ucConn = connect::GetUcConn();
+        // 获取UC数据对象
+        $ucRss = $ucConn->query('uc_members', 'username="'.$this->username.'"');
+        $rs    = $ucRss[0];
+        if (count($ucRss) != 1) {
+            die(\ob_conn_res::CreateSystemError("查询UC玩家信息出错")->ToJson());
+            return false;
+        }
+        $md5Val = md5($newpwd);
+        // 获取UC的salt
+        $salt = $rs['salt'];
+        // 更新UC的密码
+        $ucpwd = md5($md5Val.$salt);
+        $resCount = $ucConn->updata('uc_members', 'username="'.$this->username.'"', array('password' => $ucpwd));
+        if ($resCount < 1) {
+            die(\ob_conn_res::CreateSystemError("更新UC平台玩家密码出错 " . $resCount)->ToJson());
+            return false;
+        }
+        // 更新平台的密码
+        $res = connect::GetPlatConn()->updata(self::$tlbName, 'uid='.$this->uid, array('password' => $md5Val));
+        if ($res > 0) {
+            return true;
+        } else {
+            die(\ob_conn_res::CreateSystemError("更新平台的玩家密码信息出错")->ToJson());
+            return false;
+        }
     }
 
     static private function getPages($max, $page) {
@@ -96,8 +158,14 @@ class gameuser implements \ob_inter_gameuser {
      * @see \ob_inter_gameuser::newGameUser
      */
     static public function newGameUser($guid) {
+        $guid = floor($guid);
         // 具体去获取相应的玩家对象
-        return new gameuser();
+        // return new gameuser();
+        $rss = connect::GetPlatConn()->query(self::$tlbName, 'uid='.$guid);
+        if (count($rss) != 1) {
+            return null;
+        }
+        return new gameuser($rss[0]);
     }
 }
 

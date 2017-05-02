@@ -37,6 +37,25 @@ class gameuser implements ob_ifcmd {
                 $obRes = ob_conn_res::GetRes('GAMEUSER_GETSEARCH');
                 $obRes->SetDBs($obGameUser::getListSearchVal());
                 return $obRes;
+            // 执行密码修改
+            case 'editpass':
+                $keyName = 'GAMEUSER_EDITPASS';
+                if ($il != 3) {
+                    return ob_conn_res::GetResAndSet($keyName, false, '修改密码参数不足');
+                }
+                $uid = $args[1];
+                $newPwd = $args[2];
+                $obGameName = ob_gateway::gameUserOnSess();
+                $obUser = $obGameName::newGameUser($uid);
+                if (!$obUser) {
+                    return ob_conn_res::GetResAndSet($keyName, false, '你要修改密码的玩家不存在！');
+                }
+                $blnOK = $obUser->updatePassword($newPwd);
+                if (!$blnOK) {
+                    return ob_conn_res::GetResAndSet($keyName, false, '修改密码操作失败！ -_-!');
+                }
+                return ob_conn_res::GetResAndSet($keyName, true, '修改密码操作成功！');
+
         }
         return ob_conn_res::GetResAndSet("GAMEUSER", false, '你想要对玩家帐号做什么？！');
     }

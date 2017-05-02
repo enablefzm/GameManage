@@ -117,22 +117,7 @@
                 <span id="spLoginInfo"></span>
             </div>
         </div>
-        <!-- 模态框 <i class="glyphicon glyphicon-exclamation-sign" id="alertModalIcon"></i> -->
-        <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title" id="alertModalTitle">提示</h4>
-                    </div>
-                    <div class="modal-body" id="alertModalBody"></div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- 模态框结束 -->
+
         <!-- 模态框查看游戏帐号信息界面 -->
         <div class="modal fade" id="modaEditUserBox" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -143,33 +128,54 @@
                     </div>
                     <div class="modal-body">
                         <table class="table table-striped">
-                            <tbody id="modaEditUserBoxBody">
-                                <tr>
-                                    <td style="font-weight: bold;width: 150px;">系统ID</td>
-                                    <td >1</td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: bold;">帐号UID</td>
-                                    <td>enablefzm</td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: bold;">手机号</td>
-                                    <td>18150160101</td>
-                                </tr>
-                                <tr>
-                                    <td style="font-weight: bold;">Email</td>
-                                    <td>welcomehitek@163.com</td>
-                                </tr>
-                            </tbody>
+                            <tbody id="modaEditUserBoxBody"></tbody>
                         </table>
                     </div>
                     <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="modaEditUserBoxBtnPass">修改密码</button>
                         <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                        <!-- <button type="button" class="btn btn-primary" id="modaEditUserBoxBtnUpdate">提交更改</button> -->
                     </div>
                 </div>
             </div>
         </div>
         <!-- 模态框查看游戏帐号信息界面结束 -->
+
+        <!-- 模态框修改帐号密码 -->
+        <div class="modal fade" id="modaEditUserBoxPass" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog" style="margin-top: 100px;width: 500px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="modaEditUserBoxTitle">修改玩家帐号密码</h4>
+                    </div>
+                    <div class="modal-body">
+                            <div class="row" style="margin-left: 70px;margin-right: 70px;">
+                                <input type="text" class="form-control" value="123456" style="float: left;width: 230px;" id="modaEditUserBoxPassText">
+                                <button class="btn btn-danger" type="button" id="modaEditUserBtn" style="float: right;">修改密码</button>
+                            </div>
+                        <p><br /></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 模态框修改帐号密码结束 -->
+
+        <!-- 模态框 <i class="glyphicon glyphicon-exclamation-sign" id="alertModalIcon"></i> -->
+        <div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog" style="margin-top: 150px;width: 650px;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="alertModalTitle">提示</h4>
+                    </div>
+                    <div class="modal-body" id="alertModalBody"></div>
+                    <div class="modal-footer">
+                        <button class="btn btn-warning" type="button" id="alertModalBtnOK" onclick="javascript:Gv.DialogMsg.doInquiry();">确定</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal" id="alertModalBtnCancel">关闭</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 模态框结束 -->
     </body>
 </html>
