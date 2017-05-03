@@ -47,7 +47,11 @@ class gameuser implements \ob_inter_gameuser {
         $obRes->addDb(\ob_gameuserres::TEXT, 'Email', $this->email);
         $obRes->addDb(\ob_gameuserres::TEXT, '最后一次登入', date('Y-m-d H:i:s', $this->lastlogintime));
         $obRes->addDb(\ob_gameuserres::TEXT, '注册时间', date('Y-m-d H:i:s', $this->regtime));
-        $obRes->addDb(\ob_gameuserres::TEXT, '是否被封号', ($this->forbidden > 0) ? '被封号' : '未被封号');
+        if ($this->forbidden > 0) {
+            $obRes->addDb(\ob_gameuserres::TEXT_RED, '是否被封号', '是-已被封号');
+        } else {
+            $obRes->addDb(\ob_gameuserres::TEXT, '是否被封号', '否-未被封号');
+        }
         return $obRes;
     }
 
@@ -84,7 +88,25 @@ class gameuser implements \ob_inter_gameuser {
         } else {
             return true;
         }
+    }
 
+    /**
+     * 设定玩家帐号封号状态
+     * !CodeTemplates.overridecomment.nonjd!
+     * @see ob_inter_gameuser::setForbidden()
+     */
+    public function setForbidden() {
+        if ($this->forbidden > 0) {
+            $this->forbidden = -1;
+        } else {
+            $this->forbidden = 1;
+        }
+        $resCount = connect::GetPlatConn()->updata(self::$tlbName, 'uid='.$this->uid, array('forbidden' => $this->forbidden));
+        if ($resCount > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     static private function getPages($max, $page) {
@@ -114,7 +136,7 @@ class gameuser implements \ob_inter_gameuser {
      * !CodeTemplates.overridecomment.nonjd!
      * @see ob_inter_gameuser::getListUserResDb()
      */
-    static public function getListUserResDb($page, $search) {
+    static public function getListUserResDb($page, $searchs) {
         $res = new \ob_res('玩家帐号列表');
         $res->addMenu('系统ID', 0);
         $res->addMenu('帐号UID', 0);
@@ -122,20 +144,27 @@ class gameuser implements \ob_inter_gameuser {
         $res->addMenu('Email', 0);
         $res->addMenu('手机号', 0);
         $res->addMenu('注册时间', 0);
-        $keys = null;
-        if ($search) {
-            $arrSearch = explode('=', $search);
-            if (count($arrSearch) == 2) {
-                switch ($arrSearch[0]) {
-                    case 'uid':
-                        $keys = 'username LIKE "%'.$arrSearch[1].'%"';
-                        break;
-                    case 'name':
-                        $keys = 'name LIKE "%'.$arrSearch[1].'%"';
-                        break;
+        $arrKey = array();
+        if ($searchs) {
+            for ($i = 0; $i < count($searchs); $i++) {
+                $search = $searchs[$i];
+                $arrSearch = explode('=', $search);
+                if (count($arrSearch) == 2) {
+                    switch ($arrSearch[0]) {
+                        case 'uid':
+                            $arrKey[] = 'username LIKE "%'.$arrSearch[1].'%"';
+                            break;
+                        case 'name':
+                            $arrKey[] = 'name LIKE "%'.$arrSearch[1].'%"';
+                            break;
+                        case 'disuser':
+                            $arrKey[] = 'forbidden='.floor($arrSearch[1]);
+                            break;
+                    }
                 }
             }
         }
+        $keys = (count($arrKey) > 0) ? implode(' AND ', $arrKey) : null;
         $rss = connect::GetPlatConn()->query(self::$tlbName, $keys, $page);
         foreach ($rss as $k => $rs) {
             $res->addDb(array($rs['uid'], $rs['username'], $rs['name'], $rs['email'], $rs['phone'], date('Y-m-d', $rs['reg_time'])));

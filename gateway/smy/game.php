@@ -14,7 +14,6 @@ class game extends \ob_game implements \ob_inter_game {
         $res->addMenu('分区ID', 0);
         $res->addMenu('游戏名称', 0);
         $res->addMenu('分区名称', 0);
-        $res->addMenu('游戏区状态', 0);
         $res->addMenu('创建时间', 0);
         $rss = \ob_conn_connect::GetConn()->query('zones', 'gameID='.$this->getID());
         foreach ($rss as $k => $rs) {
@@ -25,7 +24,6 @@ class game extends \ob_game implements \ob_inter_game {
                 $info['zoneID'],
                 $this->getName(),
                 $info['zoneName'],
-                '在线',
                 date('Y-m-d', strtotime($info['zoneDate']))
             ));
         }

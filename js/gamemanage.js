@@ -85,6 +85,10 @@ var Gm;
 	};
 	GM._sendSuccess = function(jsondb, backFunc) {
 		console.log(jsondb);
+		// if (jsondb.RES != true) {
+		// 	Gv.DialogMsg.showErrMsg(jsondb.MSG);
+		// 	return;
+		// }
 		backFunc(jsondb);
 	};
 	GM.seeGUID = function(guid, backFunc) {
@@ -121,6 +125,23 @@ var Gm;
 			Gv.DialogMsg.showOkMsg(jsondb.MSG);
 		});
 	};
+	GM.SetForbidden = function(uid, func) {
+		this.send("gameuser setforbidden " + uid, function(jsondb) {
+			if (jsondb.RES != true) {
+				Gv.DialogMsg.showErrMsg(jsondb.MSG);
+			} else {
+				Gv.DialogMsg.showOkMsg(jsondb.MSG);
+				if (func) {
+					func(jsondb);
+				}
+			}
+		});
+	};
+	// GM.showIpList = function(page, func) {
+	// 	this.send('ip list ' + page, function(jsondb) {
+	// 		Gm.OBs.getOB('ipList')
+	// 	});
+	// }
 })(Gm || (Gm = {}));
 
 // GameManageView类
@@ -435,10 +456,17 @@ var Gv;
 		var _proto_ = uiEditBox.prototype;
 		_proto_._init = function() {
 			if (!this.tlbBody) {
+				var self = this;
 				this.tlbBody = $('#modaEditUserBoxBody');
 				$(btns['F_EDIT_PASS']).bind('click', function(){ Gv.UIEditPassword.show(Gv.UIEditBox.key); });
 				$(btns['F_FORBIDDEN']).bind('click', function(){
-					Gv.DialogMsg.showInquiry("对玩家进封号和解封号操作，如果已被封号则解除封号反之则进行封号！是否进行操作？", function() {});
+					Gv.DialogMsg.showInquiry("对玩家进封号和解封号操作，如果已被封号则解除封号反之则进行封号！是否进行操作？", function() {
+						window.setTimeout(function() {
+							Gm.SetForbidden(self.key, function(jsondb) {
+								Gm.seeGUID(self.key, function(jsondb) { Gv.UIEditBox.show(jsondb); });
+							});
+						}, 500);
+					});
 				});
 			}
 			// 清除内容
@@ -447,17 +475,25 @@ var Gv;
 			for (var bk in btns) {
 				$(btns[bk]).hide();
 			}
+			this.key = 0;
 		};
 		_proto_.show = function(dbInfo) {
-			$('#modaEditUserBox').modal('show');
 			this._init();
+			$('#modaEditUserBox').modal('show');
 			for (var k in dbInfo) {
 				switch (k) {
 					case "dbs":
 						// this._showDbs(dbInfo[k]);
 						var dbs = dbInfo[k];
 						for (var j in dbs) {
-							this.tlbBody.append($("<tr><td style='font-weight: bold;width: 150px;'>" + j + "</td><td>" + dbs[j][1] + "</td></tr>"));
+							var db = dbs[j];
+							switch (db[0]) {
+								case 'TEXT_RED':
+									this.tlbBody.append($("<tr><td style='font-weight: bold;width: 150px;'>" + j + "</td><td style='color: #FF0000;'>" + db[1] + "</td></tr>"));
+									break;
+								default:
+									this.tlbBody.append($("<tr><td style='font-weight: bold;width: 150px;'>" + j + "</td><td>" + db[1] + "</td></tr>"));
+							}
 						}
 						break;
 					case "func":
@@ -599,8 +635,8 @@ var Gv;
 				case 'disuser':
 					this.act = options.act;
 					break;
-				default:
-					this.act = 'list';
+				// default:
+				// 	this.act = 'list';
 			}
 			if (options.search || options.search == "") {
 				console.log("search ", options.search);
@@ -662,4 +698,46 @@ var Gv;
 	}
 	Gv.Content.regContent('userList', UserContent);
 	Gm.OBs.regOB('USERLIST', UserContent);
+}());
+
+(function() {
+	var IpContent = {
+		page: 1,
+		search: '',
+
+		_init: function() {
+
+		},
+		show: function(options) {
+			$('contGameList').show();
+			if (!options) {
+				options = {};
+			}
+			if (options.page) {
+				this.page = options.page;
+			}
+			if (options.search) {
+				this.search = options.search;
+			}
+			var self = this;
+			Gm.send('ip list ' + this.page + ' ' + this.search, function(jsondb){
+				self.showDb(jsondb);
+			});
+		},
+		showDb: function(jsondb) {
+			if (jsondb.RES != true) {
+				Gv.DialogMsg.showErrMsg(jsondb.MSG);
+				return;
+			}
+			Gv.Content.showTable(jsondb.DBs, [
+				['删除', function(ipid) { console.log(ipid);}]
+			]);
+			console.log("执行完成", jsondb.DBs);
+		},
+		hide: function() {
+			$('#contGameList').hide();
+		}
+	}
+	Gv.Content.regContent('ipList', IpContent);
+	Gm.OBs.regOB('IPLIST', IpContent);
 }());

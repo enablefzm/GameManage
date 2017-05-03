@@ -38,6 +38,12 @@ interface ob_inter_gameuser {
      *  @return boolean true 表示操作成功
      */
     public function updatePassword($newpwd);
+
+    /**
+     * 切换玩家封号状态
+     * @return boolea
+     */
+    public function setForbidden();
 }
 
 ?>

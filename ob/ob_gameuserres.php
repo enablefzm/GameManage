@@ -1,7 +1,8 @@
 <?php
 // 玩家信息返回格式对象
 class ob_gameuserres {
-    const TEXT = 'TEXT';
+    const TEXT          = 'TEXT';
+    const TEXT_RED      = 'TEXT_RED';
     const FUN_EDIT_PASS = 'F_EDIT_PASS';
     const FUN_FORBIDDEN = 'F_FORBIDDEN';
 
