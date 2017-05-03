@@ -709,7 +709,7 @@ var Gv;
 
 		},
 		show: function(options) {
-			$('contGameList').show();
+			$('#contGameList').show();
 			if (!options) {
 				options = {};
 			}
@@ -732,7 +732,6 @@ var Gv;
 			Gv.Content.showTable(jsondb.DBs, [
 				['删除', function(ipid) { console.log(ipid);}]
 			]);
-			console.log("执行完成", jsondb.DBs);
 		},
 		hide: function() {
 			$('#contGameList').hide();

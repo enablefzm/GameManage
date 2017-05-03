@@ -56,15 +56,31 @@ class ob_gateway {
      * @return ob_inter_gameuser
      */
     static public function gameUserOnSess() {
+        $gameKey = self::getGameKey();
+        // 预加载接口文件
+        self::requireGateWay($gameKey, 'gameuser');
+        $obname = '\\'.$gameKey.'\\gameuser';
+        return $obname;
+    }
+
+    /**
+     * 获取IP管理对象的静态对象名称
+     * @return ob_inter_ip
+     */
+    static public function cIP() {
+        $gameKey = self::getGameKey();
+        self::requireGateWay($gameKey, 'ipforbidden');
+        $obname = '\\'.$gameKey.'\\ipforbidden';
+        return $obname;
+    }
+
+    static private function getGameKey() {
         $gameKey = ob_session::GetSelectGameKey();
         if (!$gameKey) {
             echo ob_conn_res::CreateSystemError('你还未选择要操作的游戏或着要被操作的游戏不存在。')->ToJson();
             die(0);
         }
-        // 预加载接口文件
-        self::requireGateWay($gameKey, 'gameuser');
-        $obname = '\\'.$gameKey.'\\gameuser';
-        return $obname;
+        return $gameKey;
     }
 }
 
