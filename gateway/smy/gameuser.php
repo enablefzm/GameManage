@@ -181,8 +181,8 @@ class gameuser implements \ob_inter_gameuser {
      */
     static public function getListSearchVal() {
         return array(
-            'uid' => '玩家帐号',
-            // 'name' => '玩家姓名'
+            'uid'  => '帐号',
+            // 'name' => '姓名'
         );
     }
 

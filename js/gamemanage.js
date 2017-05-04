@@ -74,11 +74,13 @@ var Gm;
 		}
 	};
 	GM.send = function(cmd, backFunc) {
+		Gv.LoadingIco.show(true);
 		$.ajax({
 			'url': 		this.serverPath,
 			'dataType': 'json',
 			'data': 	{'cmd': cmd},
 			'success': 	function(jsondb){
+				Gv.LoadingIco.show(false);
 				GM._sendSuccess(jsondb, backFunc);
 			}
 		});
@@ -216,6 +218,19 @@ var Gv;
 			}
 		}
 		$('#spMainGameName').text(tName);
+	};
+	Gv.LoadingIco = {
+		dLoadIco: null,
+		show: function(isShow) {
+			if (!this.dLoadIco) {
+				this.dLoadIco = $('#imgLoading');
+			}
+		    if (isShow) {
+		    	this.dLoadIco.show();
+		    } else {
+		    	this.dLoadIco.hide();
+		    }
+		}
 	};
 	// 显示中区管理
 	Gv.Content = {
@@ -608,13 +623,18 @@ var Gv;
 		search: '',
 		nowPage: 1,
 		obTable: null,
+		obSearch: null,
 
 		_init: function() {
 			if (this.obTable)
 				return;
 			this.obTable = new Gv.CContent();
 			this.obTable.dTableTitle.hide();
-			$('#conGameUserList').append(this.obTable.getMainDiv());
+			var divMain = $('#conGameUserList');
+			divMain.append(this.obTable.getMainDiv());
+			this.obSearch = new Gv.CBoxSearch();
+			divMain.find('h4').append(this.obSearch.getMainDiv());
+			// this.obSearch.showSearch()
 		},
 		// options
 		// 	search: [val]
@@ -645,9 +665,8 @@ var Gv;
 			page = 1;
 			if (options.page) {
 				page = Math.floor(options.page);
-				if (page < 1) {
+				if (page < 1)
 					page = 1;
-				}
 			}
 			this.nowPage = page;
 			var self = this;
@@ -680,7 +699,7 @@ var Gv;
 			// 显示查找键值
 			Gm.GameUserSearch.getSearch(Gm.DBs.SelectGame.game, function(searchKeys) {
 				searchOption.options = searchKeys;
-				UserContent.obTable.showSearch(searchOption);
+				UserContent.obSearch.showSearch(searchOption);
 			});
 		},
 		hide: function() {
@@ -738,8 +757,15 @@ var Gv;
 			}
 			this.obTable.showTable(jsondb.DBs, [
 				// 操作名称, 操作函数function(key, args), [获取参数的函数 , function(db) { return [db[0], db[1]] }]
-				['删除', function(args) { console.log(args);}]
+				['删除', function(args) { IpContent.showDeleteInfo(args[0], args[1])}, function(db) { return [db[0], db[1]] }]
 			]);
+		},
+		showDeleteInfo: function(ipid, ipVal) {
+			console.log(ipid, ipVal);
+			Gv.DialogMsg.showInquiry("确定要将" + ipVal + "地址从IP黑名单中删除吗？", function(){ IpContent.doDeleteInfo(ipid); });
+		},
+		doDeleteInfo: function(ipid) {
+			console.log("执行删除", ipid);
 		},
 		hide: function() {
 			$('#contIpList').hide();
@@ -774,7 +800,7 @@ var Gv;
 		// 分页
 		var t = $('<div style="text-align: center;"></div>');
 		this.mainDiv.append(t);
-		this.dPages = $('<ul></ul>');
+		this.dPages = $('<ul class="pagination"></ul>');
 		t.append(this.dPages);
 	};
 	var _proto_ = Gv.CContent.prototype;
@@ -787,6 +813,8 @@ var Gv;
 		this.dPages.hide();
 		// 创建Table信息
 		this.createTable(showTableDb, actionDb);
+		// 显示分页
+		this.showNavpage(cmdType, showTableDb.navpage);
 	};
 	// 创建表格
 	_proto_.createTable = function(showDb, actionDb) {
@@ -842,6 +870,39 @@ var Gv;
 			this.dTableBody.append(tr);
 		}
 	};
+	// 显示分页
+	_proto_.showNavpage = function(cmdType, parames) {
+		var navPage = this.dPages;
+		if (parames.pages.length < 1) {
+			return;
+		}
+		navPage.empty();
+		navPage.append($("<li class='previous'><a href='javascript:Gm.navPage(\"" + cmdType + "\", 1);'>&larr;Top</a></li>"));
+		if (parames.nowpage > 1) {
+			var pre = parames.nowpage - 1;
+			navPage.append($("<li><a href='javascript:Gm.navPage(\"" + cmdType + "\", " + pre + ");'>&laquo;</a></li>"));
+		} else {
+			navPage.append($("<li class='previous disabled'><a href='javascript:void(0);'>&laquo;</a></li>"));
+		}
+		for (var k in parames.pages) {
+			var tPage = parames.pages[k];
+			if (tPage == parames.nowpage) {
+				var t = $("<li><a href='javascript:void(0);'>" + tPage + "</a></li>");
+				t.attr("class", "active");
+			} else {
+				var t = $("<li><a href='javascript:Gm.navPage(\"" + cmdType + "\", " + tPage + ");'>" + tPage + "</a></li>");
+			}
+			navPage.append(t);
+		}
+		if (parames.nowpage  < parames.max) {
+			var next = parames.nowpage + 1;
+			navPage.append($("<li><a href='javascript:Gm.navPage(\"" + cmdType + "\", " + next  + ");'>&raquo;</a></li>"));
+		} else {
+			navPage.append($("<li class='previous disabled'><a href='javascript:void(0);'>&raquo;</a></li>"));
+		}
+		navPage.append($("<li class='next'><a href='javascript:Gm.navPage(\"" + cmdType + "\", " + parames.max + ");'>Last&rarr;</a></li>"));
+		navPage.show();
+	};
 	// 显示查找值
 	_proto_.showSearch = function(parames) {
 		if (!parames) {
@@ -886,4 +947,78 @@ var Gv;
 		}
 		this.dSearch.show();
 	}
+})(Gv || (Gv = {}));
+
+(function(Gv) {
+	Gv.CBoxSearch = function() {
+		this.mainDiv = $('<div class="input-group col-md-3" style="width: 30%;float: right;margin-right: 0px;"></div>');
+		this.dInput = $('<input type="text" class="form-control" placeholder="请输入查找值" / >')
+		this.mainDiv.append(this.dInput);
+		this.dGroup = $('<span class="input-group-btn" style="width: 180px;"></span>');
+		this.mainDiv.append(this.dGroup);
+		this.dSelect = $('<select class="form-control" style="width: 100px; margin-left: 5px;border-radius: 0px;"></select>');
+		this.dButton = $('<button class="btn btn-info btn-search" style="margin-left:5px;background-color: #555;border-color: #333;width: 80px;">查找</button>');
+		this.dGroup.append(this.dSelect);
+		this.dGroup.append(this.dButton);
+	}
+	var _proto_ = Gv.CBoxSearch.prototype;
+	// 添加查找对象
+	//	parames {
+	//		options: {[val, text]},
+	//		selectKey: keyVal,
+	//		func: function(searchVal)
+	//	}
+	//
+	_proto_.showSearch = function(parames) {
+		if (!parames)
+			parames = {};
+		if (parames.placeholder) {
+			this.dInput.attr("placeholder", parames.placeholder);
+		} else {
+			this.dInput.attr("placeholder", "请输入查找值");
+		}
+		this.dSelect.empty();
+		if (parames.options && parames.options.length > 0) {
+			for (var k in parames.options) {
+				var arr = parames.options[k];
+				this.dSelect.append("<option value='" + arr[0] + "'>" + arr[1] + "</option>");
+			}
+			if (parames.searchKey) {
+				this.dSelect.val(parames.searchKey);
+			}
+			if (parames.options.length > 1) {
+				this.setSelectShow();
+			} else {
+				this.dSelect.val(parames.options[0][0]);
+				this.setSelectHide();
+			}
+		} else {
+			this.setSelectHide();
+		}
+		if (parames.searchVal) {
+			this.dInput.val(parames.searchVal);
+		} else {
+			this.dInput.val("");
+		}
+		// 绑定click事件
+		this.dButton.unbind("click");
+		if (parames.func) {
+			var self = this;
+			(this.dButton.bind("click", function(){
+				parames.func(self.dSelect.val(), self.dInput.val());
+			}));
+		}
+		// this.mainDiv.show();
+	};
+	_proto_.setSelectShow = function() {
+		this.dSelect.show();
+		this.dGroup.css('width', '180px');
+	};
+	_proto_.setSelectHide = function() {
+		this.dSelect.hide();
+		this.dGroup.css('width', '80px');
+	};
+	_proto_.getMainDiv = function() {
+		return this.mainDiv;
+	};
 })(Gv || (Gv = {}));
