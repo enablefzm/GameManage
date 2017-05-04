@@ -49,7 +49,7 @@ var Gm;
 			} else {
 				// 返回
 				GM.send("gameuser getsearch", function(jsondb) {
-					console.log("获取新的", game, " 的查询Key值");
+					// console.log("获取新的", game, " 的查询Key值");
 					if (jsondb.RES != true) {
 						Gv.DialogMsg.showErrMsg(jsondb.MSG);
 						return;
@@ -100,15 +100,6 @@ var Gm;
 			backFunc(jsondb.DBs);
 		});
 	};
-	GM.sendResult = function(result, backFunc) {
-
-	};
-	GM.getAppInfo = function(funcBack) {
-
-	};
-	GM.checkIsLogin = function(backFunc) {
-
-	};
 	GM.navPage = function(cmdType, vPage) {
 		switch (cmdType) {
 			case "GAMEUSER_LIST":
@@ -137,16 +128,12 @@ var Gm;
 			}
 		});
 	};
-	// GM.showIpList = function(page, func) {
-	// 	this.send('ip list ' + page, function(jsondb) {
-	// 		Gm.OBs.getOB('ipList')
-	// 	});
-	// }
 })(Gm || (Gm = {}));
 
 // GameManageView类
 var Gv;
 (function(Gv) {
+	Gv.name = 'TEST';
 	// 初始化View类
 	Gv.init = function() {
 		// 绑定退出
@@ -576,7 +563,7 @@ var Gv;
 		}
 	};
 	Gv.Content.regContent('gameList', WinContent);
-}());
+})();
 // 分区列表
 (function() {
 	var WinContent = {
@@ -613,19 +600,29 @@ var Gv;
 	}
 	Gv.Content.regContent('zoneList', WinContent);
 	Gm.OBs.regOB('ZONE', WinContent);
-}());
+})();
 // 帐号列表
 (function() {
 	var UserContent = {
 		act: 'list',
 		search: '',
 		nowPage: 1,
+		obTable: null,
+
+		_init: function() {
+			if (this.obTable)
+				return;
+			this.obTable = new Gv.CContent();
+			this.obTable.dTableTitle.hide();
+			$('#conGameUserList').append(this.obTable.getMainDiv());
+		},
 		// options
 		// 	search: [val]
 		//	act: 	list | disuser
 		//	page: 	[val]
 		show: function(options) {
-			$('#contGameList').show();
+			this._init();
+			$('#conGameUserList').show();
 			if (!options) {
 				options = {};
 			}
@@ -635,9 +632,12 @@ var Gv;
 				case 'disuser':
 					this.act = options.act;
 					break;
-				// default:
-				// 	this.act = 'list';
 			}
+			// 显示副标题
+			var t = '帐号列表';
+			if (this.act == 'disuser')
+				t = '被封号的帐号列表';
+			$('#conGameUserList').find('small').text(t);
 			if (options.search || options.search == "") {
 				console.log("search ", options.search);
 				this.search = options.search;
@@ -651,41 +651,41 @@ var Gv;
 			}
 			this.nowPage = page;
 			var self = this;
-			Gm.send('gameuser ' + this.act + ' ' + page + ' ' + this.search, function(jsondb) {
-				if (jsondb.RES != true) {
-					Gv.DialogMsg.showErrMsg(jsondb.MSG);
-					return;
+			Gm.send('gameuser ' + this.act + ' ' + page + ' ' + this.search, function(jsondb) { self.showDb(jsondb); });
+		},
+		showDb: function(jsondb) {
+			if (jsondb.RES != true) {
+				Gv.DialogMsg.showErrMsg(jsondb.MSG);
+				return;
+			}
+			this.obTable.showTable(
+				jsondb.DBs,
+				[['查看', function(vGuid) {
+					Gm.seeGUID(vGuid, function(jsondb) { Gv.UIEditBox.show(jsondb); });
+				}]],
+				jsondb.CMD);
+			var searchOption = {
+				placeholder: "查找用户帐号",
+				func: function(findType, findValue) {
+					UserContent.doSerach(findType, findValue);
 				}
-				Gv.Content.showTable(
-					jsondb.DBs,
-					[['查看', function(vGuid) {
-						Gm.seeGUID(vGuid, function(jsondb) { Gv.UIEditBox.show(jsondb); });
-					}]],
-					jsondb.CMD);
-				var searchOption = {
-					placeholder: "查找用户帐号",
-					func: function(findType, findValue) {
-						UserContent.doSerach(findType, findValue);
-					}
-				};
-				if (self.search) {
-					var searchKeys = self.search.split("=");
-					if (searchKeys.length == 2) {
-						searchOption.searchKey = searchKeys[0];
-						searchOption.searchVal = searchKeys[1];
-					}
+			};
+			if (this.search) {
+				var searchKeys = this.search.split("=");
+				if (searchKeys.length == 2) {
+					searchOption.searchKey = searchKeys[0];
+					searchOption.searchVal = searchKeys[1];
 				}
-				// 显示查找键值
-				Gm.GameUserSearch.getSearch(Gm.DBs.SelectGame.game, function(searchKeys) {
-					searchOption.options = searchKeys;
-					Gv.Content.showSearch(searchOption);
-				});
+			}
+			// 显示查找键值
+			Gm.GameUserSearch.getSearch(Gm.DBs.SelectGame.game, function(searchKeys) {
+				searchOption.options = searchKeys;
+				UserContent.obTable.showSearch(searchOption);
 			});
 		},
 		hide: function() {
-			$('#contGameList').hide();
+			$('#conGameUserList').hide();
 		},
-
 		doSerach: function(findType, findValue) {
 			// 查找的命令
 			//	gameuser <act> <page> <search findType=findValue>
@@ -698,18 +698,25 @@ var Gv;
 	}
 	Gv.Content.regContent('userList', UserContent);
 	Gm.OBs.regOB('USERLIST', UserContent);
-}());
+})();
 
+// IP列表
 (function() {
 	var IpContent = {
+		obTable: null,
 		page: 1,
 		search: '',
 
 		_init: function() {
-
+			if (this.obTable)
+				return;
+			this.obTable = new Gv.CContent();
+			this.obTable.dTableTitle.hide();
+			$('#contIpList').append(this.obTable.getMainDiv());
 		},
 		show: function(options) {
-			$('#contGameList').show();
+			this._init();
+			$('#contIpList').show();
 			if (!options) {
 				options = {};
 			}
@@ -729,14 +736,154 @@ var Gv;
 				Gv.DialogMsg.showErrMsg(jsondb.MSG);
 				return;
 			}
-			Gv.Content.showTable(jsondb.DBs, [
-				['删除', function(ipid) { console.log(ipid);}]
+			this.obTable.showTable(jsondb.DBs, [
+				// 操作名称, 操作函数function(key, args), [获取参数的函数 , function(db) { return [db[0], db[1]] }]
+				['删除', function(args) { console.log(args);}]
 			]);
 		},
 		hide: function() {
-			$('#contGameList').hide();
+			$('#contIpList').hide();
 		}
 	}
 	Gv.Content.regContent('ipList', IpContent);
 	Gm.OBs.regOB('IPLIST', IpContent);
-}());
+})();
+
+// 窗口表格对象
+(function(Gv) {
+	Gv.CContent = function() {
+		this.mainDiv = $('<div></div>');
+		this.dTable   = $('<table class="table table-striped"></table>');
+		this.mainDiv.append(this.dTable);
+		this.dTableTitle  = $('<caption style="font-weight: bold;font-size: 16px;"></caption>');
+		this.dTable.append(this.dTableTitle);
+		this.dSearch = $('<caption style="display: none;">\
+                            <div class="input-group col-md-3" style="width: 30%;">\
+                                <input type="text" class="form-control" placeholder="请输入查找值" / >\
+                                <span class="input-group-btn">\
+                                    <select class="form-control" style="width: 120px; margin-left: 5px;border-radius: 0px;"></select>\
+                                    <button class="btn btn-info btn-search" style="margin-left:5px;background-color: #555;border-color: #333;width: 90px;">查找</button>\
+                                </span>\
+                            </div>\
+                        </caption>');
+		this.dTable.append(this.dSearch);
+		this.dTableHead = $('<thead></thead>');
+		this.dTable.append(this.dTableHead);
+		this.dTableBody = $('<tbody></tbody>');
+		this.dTable.append(this.dTableBody);
+		// 分页
+		var t = $('<div style="text-align: center;"></div>');
+		this.mainDiv.append(t);
+		this.dPages = $('<ul></ul>');
+		t.append(this.dPages);
+	};
+	var _proto_ = Gv.CContent.prototype;
+	_proto_.getMainDiv = function() {
+		return this.mainDiv;
+	}
+	_proto_.showTable = function(showTableDb, actionDb, cmdType) {
+		// 隐藏查找和分页
+		this.dSearch.hide();
+		this.dPages.hide();
+		// 创建Table信息
+		this.createTable(showTableDb, actionDb);
+	};
+	// 创建表格
+	_proto_.createTable = function(showDb, actionDb) {
+		this.dTableTitle.text(showDb.title);
+		this.dTableHead.empty();
+		this.dTableBody.empty();
+		// 创建标题
+        var sHead = "<tr>";
+        for (var k in showDb.menus) {
+        	var t = showDb.menus[k];
+        	if (t[1] > 0) {
+        		sHead += '<th style="width:' + t[1] + 'px;">' + t[0] + '</th>';
+        	} else {
+        		sHead += '<th>' + t[0] + '</th>';
+        	}
+        }
+        if (actionDb) {
+        	var wh = '150px';
+        	if (actionDb.length > 2) {
+        		wh = '200px';
+        	}
+        	sHead += '<th style="width:' + wh + '">操作</th>'
+        }
+        sHead += "</tr>";
+		this.dTableHead.append($(sHead));
+		// 添加正文
+		var dbs = showDb.dbs;
+		for (var k in dbs) {
+			var arr = dbs[k];
+			var s = '<tr>';
+			for (var t in arr) {
+				s += '<td>' + arr[t] + '</td>';
+			}
+			s += '</tr>';
+			var tr = $(s);
+			if (actionDb) {
+				var st = $('<td style=""></td>');
+				for (var i = 0; i < actionDb.length; i++) {
+					if (i > 0) {
+						st.append($('<span>&nbsp;&nbsp;</span>'));
+					}
+					var actdb = actionDb[i];
+					var func = actdb[1];
+					var arg  = (actdb[2]) ? actdb[2](arr) : arr[showDb.key];
+					sa = $('<a href="javascript:void(0);">' + actionDb[i][0] + '</a>');
+					sa[0].doFunc = func;
+					sa[0].doArg  = arg;
+					sa.click(function(e){ this.doFunc(this.doArg); });
+					st.append(sa);
+				}
+				tr.append(st);
+			}
+			this.dTableBody.append(tr);
+		}
+	};
+	// 显示查找值
+	_proto_.showSearch = function(parames) {
+		if (!parames) {
+			return;
+		}
+		if (parames.placeholder) {
+			this.dSearch.find('input').attr("placeholder", parames.placeholder);
+		} else {
+			this.dSearch.find('input').attr("placeholder", "请输入查找值");
+		}
+		var tSelect = this.dSearch.find('select');
+		tSelect.empty();
+		if (parames.options && parames.options.length > 0) {
+			for (var k in parames.options) {
+				var arr = parames.options[k];
+				tSelect.append("<option value='" + arr[0] + "'>" + arr[1] + "</option>");
+			}
+			if (parames.searchKey) {
+				tSelect.val(parames.searchKey);
+			}
+			if (parames.options.length > 1) {
+				this.dSearch.find("select").show();
+			} else {
+				this.dSearch.find("select").val(parames.options[0][0]);
+				this.dSearch.find("select").hide();
+			}
+		} else {
+			tSelect.hide();
+		}
+		// 绑定click事件
+		this.dSearch.find('button').unbind("click");
+		if (parames.searchVal) {
+			this.dSearch.find('input').val(parames.searchVal);
+		} else {
+			this.dSearch.find('input').val("");
+		}
+		if (parames.func) {
+			var self = this;
+			(this.dSearch.find('button').bind("click", function(){
+				parames.func(self.dSearch.find("select").val(), self.dSearch.find("input").val());
+			}));
+		}
+		this.dSearch.show();
+	}
+})(Gv || (Gv = {}));

@@ -51,7 +51,7 @@
                                         <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('gameList');"><i class="glyphicon glyphicon-list"></i> 游戏列表</a></li>
                                         <!-- <li><a href="#"><i class="glyphicon glyphicon-plus"></i> 新增游戏</a></li> -->
                                         <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('zoneList');"><i class="glyphicon glyphicon-list-alt"></i> 游戏分区</a></li>
-                                        <!-- <li><a href="#"><i class="glyphicon glyphicon-plus"></i> 新增分区</a></li> -->
+
                                     </ul>
                                 </li>
                                 <!-- <li><a href="#"><i class="glyphicon glyphicon-globe"></i> 分发配置<span class="label label-warning pull-right">5</span></a></li> -->
@@ -80,8 +80,8 @@
             </div>
 
             <!-- 正文内容 -->
-            <div id="mainRightContend" style="margin-top: 5px;margin-left: 20px; margin-right: 20px;">
-                <div id="contGameList">
+            <div id="mainRightContend" style="margin-left: 20px;">
+                <div id="contGameList" style="display: none;margin-right: 20px;margin-top: 5px;">
                     <table class="table table-striped">
                         <caption id="contGameListTitle" style="font-weight: bold;font-size: 16px;"></caption>
                         <caption id="contGameListSearch" style="display: none;">
@@ -97,6 +97,26 @@
                         <tbody id="contGameListBody"></tbody>
                     </table>
                     <div style="text-align: center;"><ul id="contGameListPage" class="pagination"></ul></div>
+                </div>
+                <!-- IP黑名单 -->
+                <div id="contIpList" style="display: none;margin-right: 20px;">
+                    <div class="page-header"><h4>IP黑名单列表<button type="button" class="btn btn-primary" style="float: right;">添加IP黑名单</button></h4></div>
+                </div>
+                <!-- 玩家帐号列表 -->
+                <div id="conGameUserList" style="display: none;margin-right: 20px;">
+                    <div class="page-header">
+                        <h4>
+                            玩家帐号列表&nbsp;
+                            <small></small>
+                            <div class="input-group col-md-3" style="width: 30%;float: right;margin-right: 0px;">
+                                <input type="text" class="form-control" placeholder="请输入查找值" / >
+                                <span class="input-group-btn" style="width: 180px;">
+                                    <select class="form-control" style="width: 100px; margin-left: 5px;border-radius: 0px;"></select>
+                                    <button class="btn btn-info btn-search" style="margin-left:5px;background-color: #555;border-color: #333;width: 80px;">查找</button>
+                                </span>
+                            </div>
+                        </h4>
+                    </div>
                 </div>
             </div>
         </div>
