@@ -439,7 +439,7 @@ var Gv;
 		},
 		doInquiry: function() {
 			if (this.backFunc) {
-				this.backFunc();
+				window.setTimeout(this.backFunc, 500);
 			}
 			$('#alertModal').modal('hide');
 		}
@@ -463,11 +463,9 @@ var Gv;
 				$(btns['F_EDIT_PASS']).bind('click', function(){ Gv.UIEditPassword.show(Gv.UIEditBox.key); });
 				$(btns['F_FORBIDDEN']).bind('click', function(){
 					Gv.DialogMsg.showInquiry("对玩家进封号和解封号操作，如果已被封号则解除封号反之则进行封号！是否进行操作？", function() {
-						window.setTimeout(function() {
-							Gm.SetForbidden(self.key, function(jsondb) {
-								Gm.seeGUID(self.key, function(jsondb) { Gv.UIEditBox.show(jsondb); });
-							});
-						}, 500);
+						Gm.SetForbidden(self.key, function(jsondb) {
+							Gm.seeGUID(self.key, function(jsondb) { Gv.UIEditBox.show(jsondb); });
+						});
 					});
 				});
 			}
@@ -524,7 +522,7 @@ var Gv;
 				var self = this;
 				$("#modaEditUserBtn").bind("click", function() {
 					Gv.DialogMsg.showInquiry("确定要更改这名玩家帐号的登入密码？", function() {
-						window.setTimeout(function(){ self.doEditPassword(); }, 500);
+						self.doEditPassword();
 					});
 				});
 			}
@@ -732,6 +730,24 @@ var Gv;
 			this.obTable = new Gv.CContent();
 			this.obTable.dTableTitle.hide();
 			$('#contIpList').append(this.obTable.getMainDiv());
+			$('#conIpBtnAdd').bind('click', function(){
+				Gv.UIEditer.show({
+					title: '添加黑名单IP地址',
+					fields: [
+						['ip', 'IP地址'],
+						['ipType', 'IP地址类型']
+					],
+					func: function(args) {
+						IpContent.doAddIP(args);
+					}
+				});
+			});
+		},
+		doAddIP: function(args) {
+			Gv.DialogMsg.showOkMsg('操作成功！');
+			Gv.UIEditer.hide();
+			console.log(args);
+
 		},
 		show: function(options) {
 			this._init();
@@ -765,7 +781,15 @@ var Gv;
 			Gv.DialogMsg.showInquiry("确定要将" + ipVal + "地址从IP黑名单中删除吗？", function(){ IpContent.doDeleteInfo(ipid); });
 		},
 		doDeleteInfo: function(ipid) {
-			console.log("执行删除", ipid);
+			// console.log("执行删除", ipid);
+			Gm.send('ip delete ' + ipid, function(jsondb) {
+				if (jsondb.RES != true) {
+					Gv.DialogMsg.showErrMsg(jsondb.MSG);
+					return;
+				}
+				Gv.DialogMsg.showOkMsg(jsondb.MSG);
+				IpContent.show();
+			});
 		},
 		hide: function() {
 			$('#contIpList').hide();
@@ -1020,5 +1044,115 @@ var Gv;
 	};
 	_proto_.getMainDiv = function() {
 		return this.mainDiv;
+	};
+})(Gv || (Gv = {}));
+
+// 编辑界面
+(function(Gv) {
+	Gv.CEditBox = function() {
+		this.mainDiv = $('<div class="modal fade" id="modaEditBox" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="false" data-keyboard="false"></div>');
+		var tMain = $('<div class="modal-dialog"></div>');
+		this.mainDiv.append(tMain);
+		var tContent = $('<div class="modal-content"></div>');
+		tMain.append(tContent);
+		var tHead = $('<div class="modal-header">\
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>\
+                        <h4 class="modal-title">添加要被屏蔽的IP地址</h4>\
+                    </div>');
+		tContent.append(tHead);
+		var tBody = $('<div class="modal-body"></div>');
+		tContent.append(tBody);
+		this.dForm = $('<form class="form-horizontal" role="form"></div>');
+		tBody.append(this.dForm);
+		var tFooter = $('<div class="modal-footer"></div>');
+		tContent.append(tFooter);
+		this.btnSave = $('<button type="button" class="btn btn-primary">保存</button>');
+		tFooter.append(this.btnSave);
+		tFooter.append($('<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>'));
+		this.backFunc = null;
+		var self = this;
+		this.btnSave.bind('click', function(){ self.doSave(); });
+	}
+	var _proto_ = Gv.CEditBox.prototype;
+	_proto_.getMainDiv = function() {
+		return this.mainDiv;
+	};
+	// 显示界面
+	//	options {
+	//		'title': '标题'
+	//		'fields': [['id', '名称', FIELD_TYPE]]
+	//		'func': click function
+	// 	}
+	//
+	_proto_.show = function(options) {
+		if (!options)
+			options = {};
+		this._clear();
+		for (var k in options) {
+			switch (k) {
+				case 'title':
+					this._setTitle(options.title);
+					break;
+				case 'fields':
+					this._createField(options.fields);
+					break;
+				case 'func':
+					this.backFunc = options.func;
+					break;
+			}
+		}
+		this.mainDiv.modal("show");
+	};
+	_proto_.hide = function() {
+		this.mainDiv.modal("hide");
+	};
+	_proto_._setTitle = function(titleVal) {
+		this.mainDiv.find('h4').text = titleVal;
+	};
+	_proto_._clear = function() {
+		this.dForm.empty();
+		this.backFunc = null;
+	};
+	_proto_._createField = function(fields) {
+		for (var i = 0; i < fields.length; i++) {
+			var arr = fields[i];
+			var inputType = '';
+			switch (arr[2]) {
+				case 'FIELD_TEXT':
+				default:
+					inputType = '<input type="text" name="' + arr[0] + '" class="form-control" style="width:420px;" />';
+			}
+			this.dForm.append($('<div class="form-group"><label class="col-sm-2 control-label">' + arr[1] + '</label><div class="col-sm-10">' + inputType + '</div></div>'));
+		}
+	};
+	_proto_.doSave = function() {
+		var args = [];
+		var arrInput = this.dForm.children("input");
+		for (var i = 0; i < arrInput.length; i++) {
+			console.log(arrInput[i]);
+			var ob = arrInput[i];
+			args.push(ob.attr('name') + "=" + ob.val());
+		}
+		if (this.backFunc) {
+			this.backFunc(args);
+		}
+	};
+	// 已生成的UIBox
+	Gv.UIEditer = {
+		obEditBox: null,
+		_init: function() {
+			if (!this.obEditBox) {
+				this.obEditBox = new Gv.CEditBox();
+				$('#editBoxs').append(this.obEditBox.getMainDiv());
+			}
+		},
+		show: function(options) {
+			this._init();
+			this.obEditBox.show(options);
+		},
+		hide: function() {
+			this._init();
+			this.obEditBox.hide();
+		}
 	};
 })(Gv || (Gv = {}));

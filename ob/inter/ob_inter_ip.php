@@ -14,5 +14,18 @@ interface ob_inter_ip {
      * @return ob_res
      */
     static public function getList($page, $searchs);
+
+    /**
+     * 获取可以添加的字段属性
+     * @return ob_res_ipfield
+     */
+    static public function getAddField();
+
+    /**
+     * 删除指定的IP地址
+     * @param int $ipID
+     * @return bool 成功为true 失败为false
+     */
+    static public function delete($ipID);
 }
 ?>

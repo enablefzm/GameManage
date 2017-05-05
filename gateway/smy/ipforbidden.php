@@ -30,6 +30,29 @@ class ipforbidden extends \ob_ip implements \ob_inter_ip {
     static public function newIpForbidden($id) {
         return new ipforbidden(array());
     }
+
+    /**
+     * 获取可以添加的属性
+     * @see \ob_inter_ip
+     */
+    static public function getAddField() {
+        $obRes = new \ob_res_ipfield();
+        $obRes->addField('ip', 'IP地址');
+        return $obRes;
+    }
+
+    /**
+     * 删除指定的IP地址
+     * @param int $ipid
+     */
+    static public function delete($ipid) {
+        $ipid = floor($ipid);
+        $result = connect::GetPlatConn()->delete(self::TLB_NAME, 'id='.$ipid);
+        if ($result < 0)
+            return false;
+        else
+            return true;
+    }
 }
 
 ?>

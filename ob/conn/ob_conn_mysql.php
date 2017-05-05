@@ -88,6 +88,19 @@ class ob_conn_mysql {
     }
 
     /**
+     * 删除表中某个记录
+     * @param string $table
+     * @param string $key
+     * @return int 成功返回0以上数值
+     */
+    public function delete($table, $key) {
+        if (!$key || strlen($key) < 3)
+            return -1;
+        $sql = 'DELETE FROM '.$table.' WHERE '.$key;
+        return $this->execute($sql);
+    }
+
+    /**
      * 通对象类型获取数据
      * !CodeTemplates.overridecomment.nonjd!
      * @see ob_fet_conn_inte::query()
