@@ -62,17 +62,12 @@
                                         <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('ipList', {page: 1, search: ''});"><i class="glyphicon glyphicon-ban-circle"></i> IP黑名单</a></li>
                                     </ul>
                                 </li>
-                                <li><a href="#"><i class="glyphicon glyphicon-calendar"></i> 图表统计</a></li>
-                                <li><a href="#"><i class="glyphicon glyphicon-fire"></i> 关于系统</a></li>
-                                <li><a href="#systemSetting" class="nav-header collapsed" data-toggle="collapse"><i class="glyphicon glyphicon-cog"></i> 系统管理<span class="pull-right glyphicon glyphicon-chevron-down"></span></a>
-                                    <ul id="systemSetting" class="nav nav-list collapse secondmenu" style="height: 0px;">
-                                        <li><a href="#"><i class="glyphicon glyphicon-user"></i>用户管理</a></li>
-                                        <li><a href="#"><i class="glyphicon glyphicon-th-list"></i>菜单管理</a></li>
-                                        <li><a href="#"><i class="glyphicon glyphicon-asterisk"></i>角色管理</a></li>
-                                        <li><a href="#"><i class="glyphicon glyphicon-edit"></i>修改密码</a></li>
-                                        <li><a href="#"><i class="glyphicon glyphicon-eye-open"></i>日志查看</a></li>
+                                <li><a href="#mnuPayManage" class="nav-header collapsed" data-toggle="collapse"><i class="glyphicon glyphicon-calendar"></i> 充值查询<span class="pull-right glyphicon glyphicon-chevron-down"></span></a>
+                                     <ul id="mnuPayManage" class="nav nav-list collapse secondmenu" style="height: 0px;">
+                                        <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('payList', {act: 'list', page: 1, search: ''});"><i class="glyphicon glyphicon-list"></i> 充值列表</a></li>
                                     </ul>
                                 </li>
+                                <li><a href="#"><i class="glyphicon glyphicon-fire"></i> 关于系统</a></li>
                             </ul>
                         </div>
                     </div>
@@ -105,6 +100,10 @@
                 <!-- 玩家帐号列表 -->
                 <div id="conGameUserList" style="display: none;margin-right: 20px;">
                     <div class="page-header"><h4>玩家帐号列表&nbsp;<small></small></h4></div>
+                </div>
+                <!-- 玩家充值列表 -->
+                <div id="conUserPayList" style="display: none;margin-right: 20px;">
+                    <div class="page-header"><h4>玩家充值列表&nbsp;<small>查看玩家在游戏里的充值信息列表</small></h4></div>
                 </div>
             </div>
         </div>
@@ -172,34 +171,7 @@
         </div>
         <!-- 模态框修改帐号密码结束 -->
 
-        <!-- 模态框编辑界面
-        <div class="modal fade" id="modaEditBox" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="false" data-keyboard="false">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">添加要被屏蔽的IP地址</h4>
-                    </div>
-                    <div class="modal-body">
-                        <form class="form-horizontal" role="form">
-                            <div class="form-group">
-                                <label for="firstname" class="col-sm-2 control-label">名字</label>
-                                <div class="col-sm-10"><input type="text" class="form-control"></div>
-                            </div>
-                            <div class="form-group">
-                                <label for="firstname" class="col-sm-2 control-label">姓氏中文</label>
-                                <div class="col-sm-10"><input type="text" class="form-control"></div>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary">保存</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        模态框修改帐号密码结束 -->
+        <!-- 模态框编辑界面盒子节点 -->
         <div id="editBoxs"></div>
 
         <!-- 模态框 <i class="glyphicon glyphicon-exclamation-sign" id="alertModalIcon"></i> -->

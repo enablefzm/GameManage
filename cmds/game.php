@@ -51,7 +51,7 @@ class game implements ob_ifcmd {
                             ob_session::GetSess()->setGameID($obGame->getID());
                             ob_session::GetSess()->setZoneID(null);
                             $obRes = ob_conn_res::GetRes("GAMESET");
-                            $obRes->SetDBs($obGame->getName());
+                            $obRes->SetDBs(ob_session::getSelectGameAndZoneInfo());
                             return $obRes;
                             break;
                         case 'zone':
@@ -68,7 +68,7 @@ class game implements ob_ifcmd {
                             $obSess = ob_session::GetSess();
                             $obSess->setGameZoneID($obGame->getID(), $obZone->getID());
                             $obRes = ob_conn_res::GetRes("ZONESET");
-                            $obRes->SetDBs(array($obGame->getName(), $obZone->getZoneName()));
+                            $obRes->SetDBs(ob_session::getSelectGameAndZoneInfo());
                             return $obRes;
                             break;
                         default:

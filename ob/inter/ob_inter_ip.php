@@ -22,6 +22,13 @@ interface ob_inter_ip {
     static public function getAddField();
 
     /**
+     * 添加IP地址到数据库
+     * @param string $ipVal
+     * @return true | false
+     */
+    static public function add($ipVal);
+
+    /**
      * 删除指定的IP地址
      * @param int $ipID
      * @return bool 成功为true 失败为false

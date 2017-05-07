@@ -25,8 +25,6 @@ var Gm;
 	GM.appName    = '';
 	GM.appVersion = '';
 	GM.serverPath = 'do.php';
-	Gm.gameName   = '未选定';
-	Gm.gameZone   = '';
 
 	// 玩家信息数据
 	GM.DBs = {
@@ -36,8 +34,44 @@ var Gm;
 			name: ''
 		},
 		SelectGame: {
-			game: null,
-			zone: null
+			game: {
+				id: null,
+				key: null,
+				name: null
+			},
+			zone: {
+				gameID: null,
+				id: null,
+				zoneID: null,
+				zoneName: null,
+			},
+			getGameGid: function() { return this.game.id; },
+			getGameKey: function() { return this.game.key; },
+			getGameName: function() { return this.game.name; },
+			getZoneName: function() { return this.zone.zoneName; },
+			getInfo: function() {
+				var gName = this.getGameName();
+				if (gName == null) {
+					return '未选定';
+				}
+				var zName = this.getZoneName();
+				if (zName == null) {
+					return gName;
+				}
+				return gName + ' -' + zName;
+			},
+			init: function(selectInfo) {
+				if (selectInfo.game) {
+					this.game = selectInfo.game;
+				} else {
+					this.game = {};
+				}
+				if (selectInfo.zone) {
+					this.zone = selectInfo.zone;
+				} else {
+					this.zone = {};
+				}
+			}
 		}
 	};
 	// 获取查询KEY
@@ -49,7 +83,7 @@ var Gm;
 			} else {
 				// 返回
 				GM.send("gameuser getsearch", function(jsondb) {
-					// console.log("获取新的", game, " 的查询Key值");
+					console.log("系统从服务器获取", game, " 的查询Key值");
 					if (jsondb.RES != true) {
 						Gv.DialogMsg.showErrMsg(jsondb.MSG);
 						return;
@@ -61,6 +95,40 @@ var Gm;
 					GM.GameUserSearch.searchs[game] = arrSearch;
 					funcBack(GM.GameUserSearch.searchs[game]);
 				});
+			}
+		}
+	};
+	GM.GameCacheFields = {
+		fields: {},
+		getFields: function(fieldType, funcBack) {
+			var game = GM.DBs.SelectGame.getGameKey();
+			if (game == null) {
+				Gv.showErrMsg("请先选择你要操作的游戏");
+				return;
+			}
+			if (!this.fields[game]) {
+				this.fields[game] = {};
+			}
+			if (!this.fields[game][fieldType]) {
+				switch (fieldType) {
+					case 'IP_ADD':
+						var self = this;
+						GM.send('ip addfield', function(jsondb) {
+							if (jsondb.RES != true) {
+								Gv.DialogMsg.showErrMsg(jsondb.MSG);
+								return;
+							}
+							self.fields[game][fieldType] = jsondb.DBs;
+							funcBack(jsondb.DBs);
+						});
+						console.log("系统从服务器调用", game, " 的", fieldType, "字段数据")
+						break;
+					default:
+						Gv.DialogMsg.showErrMsg("没有这个游戏类型编辑字段相应的接口！");
+						return;
+				}
+			} else {
+				funcBack(this.fields[game][fieldType]);
 			}
 		}
 	};
@@ -106,6 +174,8 @@ var Gm;
 		switch (cmdType) {
 			case "GAMEUSER_LIST":
 			Gv.Content.showContent('userList', {page: vPage});
+			case "PAY_LIST":
+			Gv.Content.showContent('payList', {page: vPage});
 			break;
 		}
 	};
@@ -191,11 +261,10 @@ var Gv;
 			$('#spMainUserName').text(Gm.DBs.User.name);
 			// 显示已选中的游戏
 			var tSelectGame = jsondb.DBs.SelectGameInfo;
-			if (tSelectGame) {
-				Gv.showSelectGameAndZone(tSelectGame[0], tSelectGame[1]);
-			}
+			Gm.DBs.SelectGame.init(tSelectGame);
+			Gv.showSelectGameAndZone(Gm.DBs.SelectGame.getInfo());
 			// 执行显示游戏列表
-			if (tSelectGame[0] && tSelectGame[0].length > 0) {
+			if (Gm.DBs.SelectGame.getGameKey()) {
 				Gv.Content.showContent('zoneList');
 			} else {
 				Gv.Content.showContent('gameList');
@@ -207,16 +276,7 @@ var Gv;
 		$('#divLoginInfo').show();
 		$('#spLoginInfo').html(msg);
 	};
-	Gv.showSelectGameAndZone = function(gameName, zoneName) {
-		Gm.DBs.SelectGame.game = gameName;
-		Gm.DBs.SelectGame.zone = zoneName;
-		var tName = "未选定";
-		if (gameName && gameName.length > 0) {
-			tName = gameName;
-			if (zoneName && zoneName.length > 0) {
-				tName += " -" + zoneName;
-			}
-		}
+	Gv.showSelectGameAndZone = function(tName) {
 		$('#spMainGameName').text(tName);
 	};
 	Gv.LoadingIco = {
@@ -568,7 +628,9 @@ var Gv;
 					Gv.DialogMsg.showErrMsg(jsondb.MSG);
 				} else {
 					Gv.DialogMsg.showOkMsg("选择游戏操作成功！请选择要操作的分区。");
-					$('#spMainGameName').text(jsondb.DBs);
+					Gm.DBs.SelectGame.init(jsondb.DBs);
+					// $('#spMainGameName').text(Gm.DBs.SelectGame.getInfo());
+					Gv.showSelectGameAndZone(Gm.DBs.SelectGame.getInfo());
 					// 转向游戏分区选项
 					Gv.Content.showContent('zoneList');
 				}
@@ -606,7 +668,8 @@ var Gv;
 					Gv.DialogMsg.showErrMsg(jsondb.MSG);
 				} else {
 					Gv.DialogMsg.showOkMsg("游戏分区选定成功！");
-					Gv.showSelectGameAndZone(jsondb.DBs[0], jsondb.DBs[1]);
+					Gm.DBs.SelectGame.init(jsondb.DBs);
+					Gv.showSelectGameAndZone(Gm.DBs.SelectGame.getInfo());
 				}
 			});
 		}
@@ -657,7 +720,6 @@ var Gv;
 				t = '被封号的帐号列表';
 			$('#conGameUserList').find('small').text(t);
 			if (options.search || options.search == "") {
-				console.log("search ", options.search);
 				this.search = options.search;
 			}
 			page = 1;
@@ -695,7 +757,7 @@ var Gv;
 				}
 			}
 			// 显示查找键值
-			Gm.GameUserSearch.getSearch(Gm.DBs.SelectGame.game, function(searchKeys) {
+			Gm.GameUserSearch.getSearch(Gm.DBs.SelectGame.getGameKey(), function(searchKeys) {
 				searchOption.options = searchKeys;
 				UserContent.obSearch.showSearch(searchOption);
 			});
@@ -716,6 +778,57 @@ var Gv;
 	Gv.Content.regContent('userList', UserContent);
 	Gm.OBs.regOB('USERLIST', UserContent);
 })();
+// 充值列表
+(function() {
+	var UserPayContent = {
+		obTable: null,
+		obSearch: null,
+		divMain: null,
+		page: 1,
+		search: null,
+
+		_init: function() {
+			if (this.obTable)
+				return;
+			this.obTable = new Gv.CContent();
+			this.obSearch = new Gv.CBoxSearch();
+			this.divMain = $('#conUserPayList');
+			this.divMain.append(this.obTable.getMainDiv());
+			this.divMain.find('h4').append(this.obSearch.getMainDiv());
+		},
+
+		show: function(options) {
+			this._init();
+			this.divMain.show();
+			if (!options) {
+				options = {};
+			} else {
+				if (options.page) {
+					this.page = Math.floor(options.page);
+					if (this.page < 1)
+						this.page = 1;
+				}
+			}
+
+			Gm.send('pay list ' + this.page, function(jsondb) {
+				UserPayContent.showDb(jsondb);
+			});
+		},
+
+		showDb: function(jsondb) {
+			if (jsondb.RES != true) {
+				Gv.DialogMsg.showErrMsg(jsondb.MSG);
+				return;
+			}
+			this.obTable.showTable(jsondb.DBs, [['查看', function(orderid){ Gv.DialogMsg.showOkMsg(orderid); }]], jsondb.CMD);
+		},
+
+		hide: function() {
+			this.divMain.hide();
+		}
+	};
+	Gv.Content.regContent('payList', UserPayContent);
+})();
 
 // IP列表
 (function() {
@@ -731,23 +844,31 @@ var Gv;
 			this.obTable.dTableTitle.hide();
 			$('#contIpList').append(this.obTable.getMainDiv());
 			$('#conIpBtnAdd').bind('click', function(){
-				Gv.UIEditer.show({
-					title: '添加黑名单IP地址',
-					fields: [
-						['ip', 'IP地址'],
-						['ipType', 'IP地址类型']
-					],
-					func: function(args) {
-						IpContent.doAddIP(args);
-					}
+				Gm.GameCacheFields.getFields('IP_ADD', function(vFields) {
+					Gv.UIEditer.show({
+						title: '添加黑名单IP地址',
+						fields: vFields,
+						func: function(args) {
+							IpContent.doAddIP(args);
+						}
+					});
 				});
 			});
 		},
 		doAddIP: function(args) {
-			Gv.DialogMsg.showOkMsg('操作成功！');
-			Gv.UIEditer.hide();
 			console.log(args);
-
+			var sendVal = args; //.replace(/\s+/g, "");
+			console.log(args, " now:", sendVal);
+			Gm.send('ip add ' + sendVal, function(jsondb) {
+				if (jsondb.RES == true) {
+					Gv.DialogMsg.showOkMsg('操作成功！');
+					Gv.UIEditer.hide();
+					// 刷新界面
+					IpContent.show();
+				} else {
+					Gv.DialogMsg.showErrMsg(jsondb.MSG);
+				}
+			});
 		},
 		show: function(options) {
 			this._init();
@@ -811,7 +932,7 @@ var Gv;
                             <div class="input-group col-md-3" style="width: 30%;">\
                                 <input type="text" class="form-control" placeholder="请输入查找值" / >\
                                 <span class="input-group-btn">\
-                                    <select class="form-control" style="width: 120px; margin-left: 5px;border-radius: 0px;"></select>\
+                                    <select class="form-control" style="width: 120px; margin-left: 5px;border-radius: 0px;display: none;"></select>\
                                     <button class="btn btn-info btn-search" style="margin-left:5px;background-color: #555;border-color: #333;width: 90px;">查找</button>\
                                 </span>\
                             </div>\
@@ -975,7 +1096,7 @@ var Gv;
 
 (function(Gv) {
 	Gv.CBoxSearch = function() {
-		this.mainDiv = $('<div class="input-group col-md-3" style="width: 30%;float: right;margin-right: 0px;"></div>');
+		this.mainDiv = $('<div class="input-group col-md-3" style="width: 30%;float: right;margin-right: 0px;display:none;"></div>');
 		this.dInput = $('<input type="text" class="form-control" placeholder="请输入查找值" / >')
 		this.mainDiv.append(this.dInput);
 		this.dGroup = $('<span class="input-group-btn" style="width: 180px;"></span>');
@@ -1032,7 +1153,7 @@ var Gv;
 				parames.func(self.dSelect.val(), self.dInput.val());
 			}));
 		}
-		// this.mainDiv.show();
+		this.mainDiv.show();
 	};
 	_proto_.setSelectShow = function() {
 		this.dSelect.show();
@@ -1062,7 +1183,7 @@ var Gv;
 		tContent.append(tHead);
 		var tBody = $('<div class="modal-body"></div>');
 		tContent.append(tBody);
-		this.dForm = $('<form class="form-horizontal" role="form"></div>');
+		this.dForm = $('<div class="form-horizontal" role="form"></div>');
 		tBody.append(this.dForm);
 		var tFooter = $('<div class="modal-footer"></div>');
 		tContent.append(tFooter);
@@ -1127,11 +1248,10 @@ var Gv;
 	};
 	_proto_.doSave = function() {
 		var args = [];
-		var arrInput = this.dForm.children("input");
+		var arrInput = this.dForm.find("input");
 		for (var i = 0; i < arrInput.length; i++) {
-			console.log(arrInput[i]);
 			var ob = arrInput[i];
-			args.push(ob.attr('name') + "=" + ob.val());
+			args.push(ob.name + "=" + ob.value);
 		}
 		if (this.backFunc) {
 			this.backFunc(args);

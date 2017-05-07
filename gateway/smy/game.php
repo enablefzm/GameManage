@@ -1,9 +1,13 @@
 <?php
 namespace smy;
 
+/**
+ * 游戏名称：圣魔印
+ * 游戏KEY： smy
+ * @author Andy
+ *
+ */
 class game extends \ob_game implements \ob_inter_game {
-    private $name = '圣魔印';
-
     public function __construct($rs) {
         parent::__construct($rs);
     }

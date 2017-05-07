@@ -58,5 +58,12 @@ class ob_zone {
             return null;
         return new ob_zone($rss[0]);
     }
+
+    static public function getZoneInZoneID($gameID, $zoneID) {
+        $rss = ob_conn_connect::GetConn()->query('zones', 'gameID='.$gameID.' AND zoneID='.$zoneID);
+        if (count($rss) != 1)
+            return null;
+        return new ob_zone($rss[0]);
+    }
 }
 ?>

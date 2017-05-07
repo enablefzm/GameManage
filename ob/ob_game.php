@@ -32,6 +32,18 @@ class ob_game {
         return $this->attribs['gameKey'];
     }
 
+    public function getInfo() {
+        return array(
+            'id' => $this->attribs['id'],
+            'name' => $this->attribs['gameName'],
+            'key'  => $this->attribs['gameKey']
+        );
+    }
+
+    public function getZone($zoneID) {
+        return ob_zone::getZoneInZoneID($this->getID(), $zoneID);
+    }
+
     // 通过ID获得指定的某个对象
     //  @parames
     //      int $id 游戏ID

@@ -42,6 +42,45 @@ class ipforbidden extends \ob_ip implements \ob_inter_ip {
     }
 
     /**
+     * 添加IP地址到黑名单中
+     * @param string $args
+     * @return int
+     *       0 成功
+     *      -1 IP地址不正确
+     *      -2 参数不对
+     *      -3 IP地址已存在
+     *      -4 添加未知错误失败
+     */
+    static public function add($args) {
+        // return true;
+        $arrs = explode(',', $args);
+        for ($i = 0; $i < count($arrs); $i++) {
+            $arr = explode('=', $arrs[$i]);
+            if (count($arr) == 2) {
+                switch ($arr[0]) {
+                    case 'ip':
+                        $ipAddr = $arr[1];
+                        if (\ob_feature::isIpAdder($ipAddr)) {
+                            $arrs = connect::GetPlatConn()->query(self::TLB_NAME, 'ip="'.$ipAddr.'"');
+                            if (count($arrs) > 0) {
+                                return -3;
+                            }
+                            // 添加到数据库
+                            $res = connect::GetPlatConn()->updata(self::TLB_NAME, null, array('ip' => $ipAddr), true);
+                            if ($res > 0)
+                                return 0;
+                            else
+                                return -4;
+                        } else {
+                            return -1;
+                        }
+                }
+            }
+        }
+        return -2;
+    }
+
+    /**
      * 删除指定的IP地址
      * @param int $ipid
      */

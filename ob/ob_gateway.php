@@ -74,6 +74,17 @@ class ob_gateway {
         return $obname;
     }
 
+    /**
+     * 获取Pay充值管理对象名
+     * @return ob_inter_pay
+     */
+    static public function cPay() {
+        $gameKey = self::getGameKey();
+        self::requireGateWay($gameKey, 'pay');
+        $obname = '\\'.$gameKey.'\\pay';
+        return $obname;
+    }
+
     static private function getGameKey() {
         $gameKey = ob_session::GetSelectGameKey();
         if (!$gameKey) {

@@ -97,20 +97,20 @@ class ob_session {
     static public function getSelectGameAndZoneInfo() {
         $obSess = self::GetSess();
         $gameId = $obSess->getGameID();
-        $result = array('', '');
+        $result = array();
         if (!$gameId)
             return $result;
         $obGame = ob_game::getGame($gameId);
         if (!$obGame)
             return $result;
-        $result[0] = $obGame->getName();
+        $result['game'] = $obGame->getInfo();
         // 获取区名称
         $zId = $obSess->getGameZoneID();
         if (!$zId)
             return $result;
         $obZone = ob_zone::getZone($zId);
         if ($obZone) {
-            $result[1] = $obZone->getZoneName();
+            $result['zone'] = $obZone->getBaseInfo();
         }
         return $result;
     }

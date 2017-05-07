@@ -5,6 +5,7 @@ class ob_res {
     private $menus   = array();
     private $dbs     = array();
     private $key     = 0;
+    private $func    = array();     // 其它调用名称关键字，命令[名称, cmd, key]
     private $navpage = array(
         'max'     => 0,
         'pages'   => array(),
@@ -16,6 +17,9 @@ class ob_res {
     }
     public function addMenu($menu, $width) {
         $this->menus[] = array($menu, $width);
+    }
+    public function addFunc($name, $cmd, $key) {
+        $this->func[] = array($name, $cmd, $key);
     }
     public function setKey($idx) {
         $this->key = $idx;
@@ -37,9 +41,9 @@ class ob_res {
             'menus'   => $this->menus,
             'dbs'     => $this->dbs,
             'key'     => $this->key,
-            'navpage' => $this->navpage
+            'navpage' => $this->navpage,
+            'func'    => $this->func
         );
     }
 }
-
 ?>

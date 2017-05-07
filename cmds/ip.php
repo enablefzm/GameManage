@@ -21,6 +21,30 @@ class ip implements ob_ifcmd {
                 $obRes = ob_conn_res::GetRes('IP_ADDFIELD');
                 $obRes->SetDBs($className::getAddField()->getRes());
                 return $obRes;
+            // 添加IP地址
+            case 'add':
+                $className = ob_gateway::cIP();
+                $obRes = ob_conn_res::GetRes('IP_ADD');
+                if ($il < 2) {
+                    $obRes->SetRes(false, '你要添加的IP地址呢？');
+                } else {
+                    $resVal = $className::add($args[1]);
+                    if ($resVal == 0) {
+                        $obRes->SetRes(true, "操作成功！");
+                    } else {
+                        $resMsg = '添加IP地址失败！';
+                        switch ($resVal) {
+                            case -1:
+                                $resMsg = 'IP地址不正确';
+                                break;
+                            case -3:
+                                $resMsg = 'IP地址已存在';
+                                break;
+                        }
+                        $obRes->SetRes(false, $resMsg);
+                    }
+                }
+                return $obRes;
             // 删除指定的IP地址
             case 'delete':
                 $obRes = ob_conn_res::GetRes('IP_DELETE');
