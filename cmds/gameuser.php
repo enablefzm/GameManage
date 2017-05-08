@@ -25,11 +25,19 @@ class gameuser implements ob_ifcmd {
                 return $this->getGameList($page, $searchs);
             // 查询玩家帐号具体信息
             case 'see':
+            case 'seeuid':
                 if ($il < 2)
                     return ob_conn_res::GetResAndSet('GAMEUSER_SEE', false, '请指定要查询的帐号ID');
-                $id = floor($args[1]);
                 $cGameUser = ob_gateway::gameUserOnSess();
-                $obGameUser = $cGameUser::newGameUser($id);
+                if ($args[0] == 'see') {
+                    $id = floor($args[1]);
+                    $obGameUser = $cGameUser::newGameUser($id);
+                } else {
+                    $obGameUser = $cGameUser::newGameUserOnUID($args[1]);
+                }
+                if (!$obGameUser) {
+                    return ob_conn_res::GetResAndSet('GAMEUSER_SEE', false, '你要查询的玩家不存在');
+                }
                 $obRes = ob_conn_res::GetRes('GAMEUSER_SEE');
                 $obRes->SetDBs($obGameUser->getUserInfo()->getRes());
                 return $obRes;

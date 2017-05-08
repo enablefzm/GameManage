@@ -27,6 +27,13 @@ interface ob_inter_gameuser {
     static public function newGameUser($guid);
 
     /**
+     * 通过UID创建一个玩家帐号对象
+     * @param string $uid
+     * @return ob_inter_gameuser
+     */
+    static public function newGameUserOnUID($uid);
+
+    /**
      * 获取玩家对象信息
      * @return ob_gameuserres
      */

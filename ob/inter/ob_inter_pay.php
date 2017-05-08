@@ -9,5 +9,24 @@ interface ob_inter_pay {
      */
     static public function getAllOrderList($page, $searchs = null);
 
+    /**
+     * 获取充值帐号可以查询的条件
+     *  array(key: text)
+     * @return array()
+     */
+    static public function getListSearchVal();
+
+    /**
+     * 获得充值的所有月份数据
+     * @return ob_res
+     */
+    static public function countMons();
+
+    /**
+     * 获得充值的某个月的数据
+     * @param int $mon
+     * @return ob_res
+     */
+    static public function countDays($mon);
 }
 ?>

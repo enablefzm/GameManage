@@ -48,9 +48,9 @@
                                 <li class="active"><a href="#"><i class="glyphicon glyphicon-th-large"></i>&nbsp;Menu</a></li>
                                 <li><a href="#menuGameManage" class="nav-header collapsed" data-toggle="collapse"><i class="glyphicon glyphicon-tasks"></i> 游戏管理<span class="pull-right glyphicon glyphicon-chevron-down"></span></a>
                                     <ul id="menuGameManage" class="nav nav-list collapse secondmenu" style="height: 0px;">
-                                        <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('gameList');"><i class="glyphicon glyphicon-list"></i> 游戏列表</a></li>
+                                        <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('gameList');"><i class="glyphicon glyphicon-th-large"></i> 游戏列表</a></li>
                                         <!-- <li><a href="#"><i class="glyphicon glyphicon-plus"></i> 新增游戏</a></li> -->
-                                        <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('zoneList');"><i class="glyphicon glyphicon-list-alt"></i> 游戏分区</a></li>
+                                        <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('zoneList');"><i class="glyphicon glyphicon-th"></i> 游戏分区</a></li>
 
                                     </ul>
                                 </li>
@@ -62,9 +62,11 @@
                                         <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('ipList', {page: 1, search: ''});"><i class="glyphicon glyphicon-ban-circle"></i> IP黑名单</a></li>
                                     </ul>
                                 </li>
-                                <li><a href="#mnuPayManage" class="nav-header collapsed" data-toggle="collapse"><i class="glyphicon glyphicon-calendar"></i> 充值查询<span class="pull-right glyphicon glyphicon-chevron-down"></span></a>
+                                <li><a href="#mnuPayManage" class="nav-header collapsed" data-toggle="collapse"><i class="glyphicon glyphicon-usd"></i> 充值查询<span class="pull-right glyphicon glyphicon-chevron-down"></span></a>
                                      <ul id="mnuPayManage" class="nav nav-list collapse secondmenu" style="height: 0px;">
-                                        <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('payList', {act: 'list', page: 1, search: ''});"><i class="glyphicon glyphicon-list"></i> 充值列表</a></li>
+                                        <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('payList', {act: 'list', page: 1, search: '', nowZone: false});"><i class="glyphicon glyphicon-list-alt"></i> 充值列表</a></li>
+                                        <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('payList', {act: 'list', page: 1, search: '', nowZone: true});"><i class="glyphicon glyphicon-list"></i> 本服充值</a></li>
+                                        <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('payCount', {});"><i class="glyphicon glyphicon-gbp"></i> 本服统计</a></li>
                                     </ul>
                                 </li>
                                 <li><a href="#"><i class="glyphicon glyphicon-fire"></i> 关于系统</a></li>
@@ -104,6 +106,10 @@
                 <!-- 玩家充值列表 -->
                 <div id="conUserPayList" style="display: none;margin-right: 20px;">
                     <div class="page-header"><h4>玩家充值列表&nbsp;<small>查看玩家在游戏里的充值信息列表</small></h4></div>
+                </div>
+                <!-- 玩家充值统计列表 -->
+                <div id="conUserPayCount" style="display: none;margin-right: 20px;">
+                    <div class="page-header"><h4>玩家充值列统计&nbsp;<small>查看玩家在游戏里的充值统计信息</small></h4></div>
                 </div>
             </div>
         </div>

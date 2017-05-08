@@ -21,8 +21,8 @@ class pay implements \ob_inter_pay {
         $page = floor($page);
         if ($page < 1)
             $page = 1;
-        $arrSearch = array('game_id='.self::GAME_ID, 'create_time > 1489027300');
-
+        $res->setKey(1);
+        $arrSearch = array('game_id='.self::GAME_ID, 'create_time > 1489027300', 'status = 1');
         if (is_array($searchs)) {
             for ($i = 0; $i < count($searchs); $i++) {
                 $arr = explode('=', $searchs[$i]);
@@ -30,6 +30,7 @@ class pay implements \ob_inter_pay {
                     switch ($arr[0]) {
                         case 'server_id':
                             $arrSearch[] = 'server_id='.$arr[1];
+                            $res->setTitle('查看本服充值列表');
                             break;
                         case 'account':
                             $arrSearch[] = 'account LIKE "%'.$arr[1].'%"';
@@ -96,6 +97,46 @@ class pay implements \ob_inter_pay {
         }
         return $obZone->getZoneName();
     }
+
+    /**
+     * 统计这名玩家的具体充值金额
+     * @param string $uid
+     * @return int 充值合计金额
+     */
+    static public function getUidCount($uid) {
+        $sql = 'SELECT sum(money) as cMoney FROM '.self::TLB_NAME.' WHERE account = "'.$uid.'" AND status = 1';
+        $rss = connect::GetPlatConn()->querySql($sql);
+        if (count($rss) < 1) {
+            return 0;
+        }
+        return $rss[0]['cMoney'];
+    }
+
+    /**
+     * !CodeTemplates.overridecomment.nonjd!
+     * @see ob_inter_pay::getListSearchVal()
+     */
+    static public function getListSearchVal() {
+        return array(
+            'order_id'  => '订单号',
+            'account'   => '帐号'
+        );
+    }
+
+   static public function countMons() {
+       $obRes = new \ob_res('月分统计列表');
+       $obRes->addMenu('月份', 0);
+       $obRes->addMenu('充值总额', 0);
+       $obRes->addDb(array('2017-04', number_format(1000030, 2)));
+       return $obRes;
+   }
+
+   static public function countDays($mon) {
+       $obRes = new \ob_res($mon.'月的充值明细');
+       $obRes->addMenu('日期', 0);
+       $obRes->addMenu('充值总额', 0);
+       return $obRes;
+   }
 }
 
 ?>

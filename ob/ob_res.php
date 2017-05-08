@@ -35,6 +35,9 @@ class ob_res {
         $this->navpage['pages']   = $pages;
         $this->navpage['nowpage'] = $nowPage;
     }
+    public function setTitle($title) {
+        $this->title = $title;
+    }
     public function getRes() {
         return array(
             'title'   => $this->title,

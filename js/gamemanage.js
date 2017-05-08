@@ -121,12 +121,27 @@ var Gm;
 							self.fields[game][fieldType] = jsondb.DBs;
 							funcBack(jsondb.DBs);
 						});
-						console.log("系统从服务器调用", game, " 的", fieldType, "字段数据")
+						break;
+					case 'PAY_SEARCH':
+						var self = this;
+						GM.send('pay getsearch', function(jsondb) {
+							if (jsondb.RES != true) {
+								Gv.DialogMsg.showErrMsg(jsondb.MSG);
+								return;
+							}
+							var arrSearch = [];
+							for (var k in jsondb.DBs) {
+								arrSearch.push([k, jsondb.DBs[k]]);
+							}
+							self.fields[game][fieldType] = arrSearch;
+							funcBack(arrSearch);
+						});
 						break;
 					default:
-						Gv.DialogMsg.showErrMsg("没有这个游戏类型编辑字段相应的接口！");
+						Gv.DialogMsg.showErrMsg("没有这个缓存数据" + fieldType + "相应的接口！");
 						return;
 				}
+				console.log("系统从服务器调用", game, " 的", fieldType, "字段数据")
 			} else {
 				funcBack(this.fields[game][fieldType]);
 			}
@@ -173,9 +188,9 @@ var Gm;
 	GM.navPage = function(cmdType, vPage) {
 		switch (cmdType) {
 			case "GAMEUSER_LIST":
-			Gv.Content.showContent('userList', {page: vPage});
+			Gv.Content.showContent('userList', {page: vPage}); break;
 			case "PAY_LIST":
-			Gv.Content.showContent('payList', {page: vPage});
+			Gv.Content.showContent('payList', {page: vPage});  break;
 			break;
 		}
 	};
@@ -786,6 +801,7 @@ var Gv;
 		divMain: null,
 		page: 1,
 		search: null,
+		nowZone: false,
 
 		_init: function() {
 			if (this.obTable)
@@ -803,14 +819,26 @@ var Gv;
 			if (!options) {
 				options = {};
 			} else {
-				if (options.page) {
-					this.page = Math.floor(options.page);
-					if (this.page < 1)
-						this.page = 1;
+				for (var k in options) {
+					switch (k) {
+						case 'page':
+							this.page = Math.floor(options.page);
+							if (this.page < 1)
+								this.page = 1;
+							break;
+						case 'nowZone':
+							if (options.nowZone)
+								this.nowZone = true;
+							else
+								this.nowZone = false;
+							break;
+						case 'search':
+							this.search = options.search;
+							break;
+					}
 				}
 			}
-
-			Gm.send('pay list ' + this.page, function(jsondb) {
+			Gm.send('pay list ' + this.page + ' ' + this.nowZone + ' ' + this.search, function(jsondb) {
 				UserPayContent.showDb(jsondb);
 			});
 		},
@@ -820,7 +848,39 @@ var Gv;
 				Gv.DialogMsg.showErrMsg(jsondb.MSG);
 				return;
 			}
-			this.obTable.showTable(jsondb.DBs, [['查看', function(orderid){ Gv.DialogMsg.showOkMsg(orderid); }]], jsondb.CMD);
+			this.obTable.showTable(
+				jsondb.DBs,
+				[['玩家信息', function(uid){
+					Gm.send('gameuser seeuid ' + uid, function(jsondb) {
+						if (jsondb.RES != true) {
+							Gv.DialogMsg.showErrMsg(jsondb.MSG);
+							return;
+						}
+						Gv.UIEditBox.show(jsondb.DBs);
+					});
+				}]],
+				jsondb.CMD);
+			var searchOption = {
+				placeholder: "查找订单号",
+				func: function(findType, findValue) {
+					UserPayContent.doSerach(findType, findValue);
+				}
+			};
+			if (this.search) {
+				var searchKeys = this.search.split("=");
+				if (searchKeys.length == 2) {
+					searchOption.searchKey = searchKeys[0];
+					searchOption.searchVal = searchKeys[1];
+				}
+			}
+			Gm.GameCacheFields.getFields('PAY_SEARCH', function(searchKeys) {
+				searchOption.options = searchKeys;
+				UserPayContent.obSearch.showSearch(searchOption);
+			});
+		},
+
+		doSerach: function(findType, findValue) {
+			this.show({page: 1, search: findType + '=' + findValue});
 		},
 
 		hide: function() {
@@ -829,7 +889,45 @@ var Gv;
 	};
 	Gv.Content.regContent('payList', UserPayContent);
 })();
+// 统计列表
+(function() {
+	var UserPayCountContent = {
+		obTableMon: null,
+		obTableDay: null,
+		divMain: null,
 
+		_init: function() {
+			// conUserPayCount
+			if (this.obTableMon)
+				return;
+			this.obTableMon = new Gv.CContent();
+			this.obTableDay = new Gv.CContent();
+			this.divMain = $('#conUserPayCount');
+			this.divMain.append(this.obTableMon.getMainDiv());
+			this.divMain.append(this.obTableDay.getMainDiv());
+		},
+
+		show: function(options) {
+			this._init();
+			Gm.send('pay countmons', function(jsondb) { UserPayCountContent.showDb(jsondb); });
+			this.divMain.show();
+		},
+
+		showDb: function(jsondb) {
+			if (jsondb.RES != true) {
+				Gv.DialogMsg.showErrMsg(jsondb.MSG);
+				return;
+			}
+			this.obTableMon.showTable(jsondb.DBs, null, jsondb.CMD);
+		},
+
+		hide: function() {
+			this.divMain.hide();
+		}
+
+	}
+	Gv.Content.regContent('payCount', UserPayCountContent);
+})();
 // IP列表
 (function() {
 	var IpContent = {
@@ -1014,6 +1112,9 @@ var Gv;
 			}
 			this.dTableBody.append(tr);
 		}
+	};
+	_proto_.setTitle = function(title) {
+		this.dTableTitle.text(title);
 	};
 	// 显示分页
 	_proto_.showNavpage = function(cmdType, parames) {

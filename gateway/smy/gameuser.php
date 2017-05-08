@@ -1,6 +1,7 @@
 <?php
 namespace smy;
 require_once(__DIR__.'/connect.php');
+require_once(__DIR__.'/pay.php');
 
 class gameuser implements \ob_inter_gameuser {
     static private $tlbName = 'zde_members';
@@ -47,6 +48,8 @@ class gameuser implements \ob_inter_gameuser {
         $obRes->addDb(\ob_gameuserres::TEXT, 'Email', $this->email);
         $obRes->addDb(\ob_gameuserres::TEXT, '最后一次登入', date('Y-m-d H:i:s', $this->lastlogintime));
         $obRes->addDb(\ob_gameuserres::TEXT, '注册时间', date('Y-m-d H:i:s', $this->regtime));
+        $cMoney = pay::getUidCount($this->username);
+        $obRes->addDb(\ob_gameuserres::TEXT_RED, '充值合计', number_format($cMoney, 2));
         if ($this->forbidden > 0) {
             $obRes->addDb(\ob_gameuserres::TEXT_RED, '是否被封号', '是-已被封号');
         } else {
@@ -181,7 +184,7 @@ class gameuser implements \ob_inter_gameuser {
      */
     static public function getListSearchVal() {
         return array(
-            'uid'  => '帐号',
+            'uid'  => '帐号'
             // 'name' => '姓名'
         );
     }
@@ -201,6 +204,12 @@ class gameuser implements \ob_inter_gameuser {
         }
         return new gameuser($rss[0]);
     }
-}
 
+    static public function newGameUserOnUID($uid) {
+       $rss = connect::GetPlatConn()->query(self::$tlbName, 'username="'.$uid.'"');
+       if (count($rss) != 1)
+           return null;
+       return new gameuser($rss[0]);
+    }
+}
 ?>

@@ -120,6 +120,11 @@ class ob_conn_mysql {
         return $this->conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function querySql($sql) {
+        $rss = $this->conn->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+        return $rss;
+    }
+
     public function count($table, $key = null) {
         $sql = 'SELECT COUNT(*) as count FROM '.$table;
         if ($key) {
