@@ -18,15 +18,15 @@ interface ob_inter_pay {
 
     /**
      * 获得充值的所有月份数据
-     * @return ob_res
+     * @return ob_res_countmons
      */
-    static public function countMons();
+    static public function countMons($zoneID);
 
     /**
      * 获得充值的某个月的数据
      * @param int $mon
      * @return ob_res
      */
-    static public function countDays($mon);
+    static public function countDays($zoneID, $mon);
 }
 ?>

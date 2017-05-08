@@ -21,7 +21,20 @@ class login implements ob_ifcmd {
         // 执行登入操作
         $obSess = ob_session::GetSess();
         $obSess->setUid($uid);
+        // 执行缺省只有一个游戏时选择它
+        $this->selectDefaultGame();
         return ob_conn_res::GetResAndSet($cmd, true, '登入成功');
+    }
+
+    // 如果游戏服只有一个则默认选择它
+    private function selectDefaultGame() {
+        if (ob_session::GetSess()->getGameID())
+            return;
+        $games = ob_game::getGames();
+        if (count($games) == 1) {
+            $obGame = $games[0];
+            ob_session::GetSess()->setGameID($obGame->getID());
+        }
     }
 }
 ?>

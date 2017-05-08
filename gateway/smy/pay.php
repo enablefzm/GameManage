@@ -123,18 +123,42 @@ class pay implements \ob_inter_pay {
         );
     }
 
-   static public function countMons() {
-       $obRes = new \ob_res('月分统计列表');
-       $obRes->addMenu('月份', 0);
-       $obRes->addMenu('充值总额', 0);
-       $obRes->addDb(array('2017-04', number_format(1000030, 2)));
+   static public function countMons($server_id) {
+       $obRes = new \ob_res_countmons();
+       $obRes->addMothsMenu('月份', 0);
+       $obRes->addMothsMenu('充值总数', 0);
+       $obRes->addMothsMenu('充值总额', 0);
+       // SELECT DATE_FORMAT(FROM_UNIXTIME(create_time), "%Y-%m") as cMonth, count(order_id) as cOrder, sum(money) as cMoney FROM zde_order WHERE game_id=16 AND server_id=101 GROUP BY cMonth;
+       $sql = 'SELECT DATE_FORMAT(FROM_UNIXTIME(create_time), "%Y-%m") as cMonth, count(order_id) as cOrder, sum(money) as cMoney FROM zde_order WHERE game_id=16 AND server_id='.$server_id.' GROUP BY cMonth';
+       $rss = connect::GetPlatConn()->querySql($sql);
+       $countOrder = 0;
+       $countMoney = 0;
+       for ($i = 0; $i < count($rss); $i++) {
+           $rs = $rss[$i];
+           $cOrder = $rs['cOrder'];
+           $cMoney = $rs['cMoney'];
+           $countOrder += $cOrder;
+           $countMoney += $cMoney;
+           $obRes->addMothsDb(array($rs['cMonth'], $cOrder, number_format($cMoney, 2)));
+       }
+       $obRes->addCountMenu('订单数总计', 200);
+       $obRes->addCountMenu('充值总金额', 200);
+       $obRes->addCountDb(array($countOrder, number_format($countMoney, 2)));
        return $obRes;
    }
 
-   static public function countDays($mon) {
+   static public function countDays($server_id, $mon) {
+       // SELECT DATE_FORMAT(FROM_UNIXTIME(create_time), "%Y-%m-%d") as cDays, COUNT(order_id) as cOrder, sum(money) as cMoney FROM zde_order WHERE game_id=16 AND server_id=101 AND DATE_FORMAT(FROM_UNIXTIME(create_time),"%Y-%m") = "2017-05" GROUP BY cDays;
        $obRes = new \ob_res($mon.'月的充值明细');
-       $obRes->addMenu('日期', 0);
+       $obRes->addMenu('日期', 150);
+       $obRes->addMenu('充值总数', 150);
        $obRes->addMenu('充值总额', 0);
+       $sql = 'SELECT DATE_FORMAT(FROM_UNIXTIME(create_time), "%Y-%m-%d") as cDays, COUNT(order_id) as cOrder, sum(money) as cMoney FROM zde_order WHERE game_id=16 AND server_id='.$server_id.' AND DATE_FORMAT(FROM_UNIXTIME(create_time),"%Y-%m") = "'.$mon.'" GROUP BY cDays';
+       $rss = connect::GetPlatConn()->querySql($sql);
+       for ($i = 0; $i < count($rss); $i++) {
+           $rs = $rss[$i];
+           $obRes->addDb(array($rs['cDays'], $rs['cOrder'], number_format($rs['cMoney'], 2)));
+       }
        return $obRes;
    }
 }

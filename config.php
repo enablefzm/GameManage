@@ -1,6 +1,6 @@
 <?php
 // config配置文件
-define('APP_NAME', '瓦瓦互动游戏管理系统');
+define('APP_NAME', '厦门英凰游戏管理系统');
 define('APP_VER',  '0.1');
 
 // 数据库配置信息

@@ -893,6 +893,7 @@ var Gv;
 (function() {
 	var UserPayCountContent = {
 		obTableMon: null,
+		obTableCount: null,
 		obTableDay: null,
 		divMain: null,
 
@@ -900,15 +901,18 @@ var Gv;
 			// conUserPayCount
 			if (this.obTableMon)
 				return;
-			this.obTableMon = new Gv.CContent();
-			this.obTableDay = new Gv.CContent();
-			this.divMain = $('#conUserPayCount');
+			this.obTableMon   = new Gv.CContent();
+			this.obTableCount = new Gv.CContent();
+			this.obTableDay   = new Gv.CContent();
+			this.divMain      = $('#conUserPayCount');
 			this.divMain.append(this.obTableMon.getMainDiv());
+			this.divMain.append(this.obTableCount.getMainDiv());
 			this.divMain.append(this.obTableDay.getMainDiv());
 		},
 
 		show: function(options) {
 			this._init();
+			this.obTableDay.hide();
 			Gm.send('pay countmons', function(jsondb) { UserPayCountContent.showDb(jsondb); });
 			this.divMain.show();
 		},
@@ -918,7 +922,26 @@ var Gv;
 				Gv.DialogMsg.showErrMsg(jsondb.MSG);
 				return;
 			}
-			this.obTableMon.showTable(jsondb.DBs, null, jsondb.CMD);
+			this.obTableMon.showTable(jsondb.DBs.K_MONTHS, [['每日充值合计',
+				function(vMonth) {
+					UserPayCountContent.doDays(vMonth);
+				}]]);
+			this.obTableCount.showTable(jsondb.DBs.K_COUNT)
+		},
+
+		doDays: function(mon) {
+			Gm.send('pay countdays ' + mon, function(jsondb) {
+				UserPayCountContent.showDays(jsondb);
+			});
+		},
+
+		showDays: function(jsondb) {
+			if (jsondb.RES != true) {
+				Gv.DialogMsg.showErrMsg(jsondb.MSG);
+				return;
+			}
+			this.obTableDay.showTable(jsondb.DBs);
+			this.obTableDay.show();
 		},
 
 		hide: function() {
@@ -1192,7 +1215,13 @@ var Gv;
 			}));
 		}
 		this.dSearch.show();
-	}
+	};
+	_proto_.show = function() {
+		this.mainDiv.show();
+	};
+	_proto_.hide = function() {
+		this.mainDiv.hide();
+	};
 })(Gv || (Gv = {}));
 
 (function(Gv) {

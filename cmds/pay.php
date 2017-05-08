@@ -16,12 +16,10 @@ class pay implements ob_ifcmd {
                 if (isset($args[2])) {
                     if ($args[2] == 'true') {
                         // 获取当前服务器信息
-                        $zoneID = ob_session::getZoneID();
-                        if (!$zoneID)
-                            return ob_conn_res::GetResAndSet('PAY_LIST', false, '请先选择要操作的游戏区');
-                        $obZone = ob_zone::getZone($zoneID);
-                        if (!$obZone)
-                            return ob_conn_res::GetResAndSet('PAY_LIST', false, '你选择的分区不存在');
+                        $arrResult = $this->getSessZone();
+                        if (!$arrResult[0])
+                            return ob_conn_res::GetResAndSet('PAY_LIST', false, $arrResult[1]);
+                        $obZone = $arrResult[1];
                         $areaID = $obZone->getZoneID();
                         $search[] = 'server_id='.$areaID;
                     }
@@ -41,12 +39,41 @@ class pay implements ob_ifcmd {
                     return $obRes;
                 // 获取所有的各个月份数据
                 case 'countmons':
+                    // 获得当前服务器Zone信息
+                    $arrResult = $this->getSessZone();
+                    if (!$arrResult[0])
+                        return ob_conn_res::GetResAndSet('PAY_COUNTMONS', false, $arrResult[1]);
+                    $obZone = $arrResult[1];
                     $payName = ob_gateway::cPay();
                     $obRes = ob_conn_res::GetRes('PAY_COUNTMONS');
-                    $obRes->SetDBs($payName::countMons()->getRes());
+                    $obRes->SetDBs($payName::countMons($obZone->getZoneID())->getRes());
                     return $obRes;
+                // 获取所有的天数
+                case 'countdays':
+                    if ($il < 2) {
+                        return ob_conn_res::GetResAndSet('PAY_COUNTDAYS', false, '缺少你要查询的月份');
+                    }
+                    $arrResult = $this->getSessZone();
+                    if (!$arrResult[0])
+                        return ob_conn_res::GetResAndSet('PAY_COUNTDAYS', false, $arrResult[1]);
+                    $obZone = $arrResult[1];
+                    $payName = ob_gateway::cPay();
+                    $obRes = ob_conn_res::GetRes('PAY_COUNTDAYS');
+                    $obRes->SetDBs($payName::countDays($obZone->getZoneID(), $args[1])->getRes());
+                    return $obRes;
+
         }
         return ob_conn_res::GetResAndSet('PAY', false, '没有具体的操作命令');
+    }
+
+    private function getSessZone() {
+        $zoneID = ob_session::getZoneID();
+        if (!$zoneID)
+            return array(false, '请先选择要操作的游戏区');
+        $obZone = ob_zone::getZone($zoneID);
+        if (!$obZone)
+            return array(false, '你选择的分区不存在');
+        return array(true, $obZone);
     }
 }
 ?>
