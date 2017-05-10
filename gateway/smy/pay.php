@@ -129,7 +129,7 @@ class pay implements \ob_inter_pay {
        $obRes->addMothsMenu('充值总数', 0);
        $obRes->addMothsMenu('充值总额', 0);
        // SELECT DATE_FORMAT(FROM_UNIXTIME(create_time), "%Y-%m") as cMonth, count(order_id) as cOrder, sum(money) as cMoney FROM zde_order WHERE game_id=16 AND server_id=101 GROUP BY cMonth;
-       $sql = 'SELECT DATE_FORMAT(FROM_UNIXTIME(create_time), "%Y-%m") as cMonth, count(order_id) as cOrder, sum(money) as cMoney FROM zde_order WHERE game_id=16 AND server_id='.$server_id.' GROUP BY cMonth';
+       $sql = 'SELECT DATE_FORMAT(FROM_UNIXTIME(create_time), "%Y-%m") as cMonth, count(order_id) as cOrder, sum(money) as cMoney FROM zde_order WHERE status=1 AND game_id=16 AND server_id='.$server_id.' GROUP BY cMonth';
        $rss = connect::GetPlatConn()->querySql($sql);
        $countOrder = 0;
        $countMoney = 0;
@@ -153,7 +153,7 @@ class pay implements \ob_inter_pay {
        $obRes->addMenu('日期', 150);
        $obRes->addMenu('充值总数', 150);
        $obRes->addMenu('充值总额', 0);
-       $sql = 'SELECT DATE_FORMAT(FROM_UNIXTIME(create_time), "%Y-%m-%d") as cDays, COUNT(order_id) as cOrder, sum(money) as cMoney FROM zde_order WHERE game_id=16 AND server_id='.$server_id.' AND DATE_FORMAT(FROM_UNIXTIME(create_time),"%Y-%m") = "'.$mon.'" GROUP BY cDays';
+       $sql = 'SELECT DATE_FORMAT(FROM_UNIXTIME(create_time), "%Y-%m-%d") as cDays, COUNT(order_id) as cOrder, sum(money) as cMoney FROM zde_order WHERE status=1 AND game_id=16 AND server_id='.$server_id.' AND DATE_FORMAT(FROM_UNIXTIME(create_time),"%Y-%m") = "'.$mon.'" GROUP BY cDays';
        $rss = connect::GetPlatConn()->querySql($sql);
        for ($i = 0; $i < count($rss); $i++) {
            $rs = $rss[$i];

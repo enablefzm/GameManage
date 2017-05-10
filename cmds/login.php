@@ -11,16 +11,19 @@ class login implements ob_ifcmd {
         // 构造用户数据
         $obUser = ob_user::GetUserInUid($uid);
         if (!$obUser) {
+            ob_log::loginLog($uid, $uid.'这用户名不存在');
             return ob_conn_res::GetResAndSet($cmd, false, '用户不存在');
         }
         // 判断密码
         $bln = $obUser->chekcPass($pwd);
         if (!$bln) {
+            ob_log::loginLog($uid, '输入的['.$pwd.']密码不正确');
             return ob_conn_res::GetResAndSet($cmd, false, "密码不存确");
         }
         // 执行登入操作
         $obSess = ob_session::GetSess();
         $obSess->setUid($uid);
+        ob_log::loginLog($uid, '成功登入系统');
         // 执行缺省只有一个游戏时选择它
         $this->selectDefaultGame();
         return ob_conn_res::GetResAndSet($cmd, true, '登入成功');
