@@ -611,6 +611,26 @@ var Gv;
 			this.divMain.modal("hide");
 		}
 	};
+	Gv.UIOutPlayer = {
+		obEdit: null,
+		_init: function() {
+			if (!this.obEdit) {
+				this.obEdit = new Gv.CUIEditLine();
+				$('#editBoxs').append(this.obEdit.getMainDiv());
+				this.obEdit.setOptions({
+					title: '请输入要被踢下线的角色名',
+					btnName: '确定',
+					func: function(value) {
+						console.log(value);
+					}
+				});
+			}
+		},
+		show: function() {
+			this._init();
+			this.obEdit.show()
+		}
+	};
 })(Gv || (Gv = {}));
 
 // 游戏列表窗口对象
@@ -1297,7 +1317,6 @@ var Gv;
 		return this.mainDiv;
 	};
 })(Gv || (Gv = {}));
-
 // 编辑界面
 (function(Gv) {
 	Gv.CEditBox = function() {
@@ -1358,7 +1377,7 @@ var Gv;
 		this.mainDiv.modal("hide");
 	};
 	_proto_._setTitle = function(titleVal) {
-		this.mainDiv.find('h4').text = titleVal;
+		this.mainDiv.find('h4').text(titleVal);
 	};
 	_proto_._clear = function() {
 		this.dForm.empty();
@@ -1405,4 +1424,66 @@ var Gv;
 			this.obEditBox.hide();
 		}
 	};
+})(Gv || (Gv = {}));
+
+(function(Gv) {
+	Gv.CUIEditLine = function() {
+		this.func = null;
+
+		this.divMain = $('<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"></div>');
+		var modal = $('<div class="modal-dialog" style="margin-top: 100px;width: 500px;"></div>');
+		this.divMain.append(modal);
+		var content = $('<div class="modal-content"></div>');
+		modal.append(content);
+		var head   = $('<div class="modal-header"></div>');
+		content.append(head);
+		head.append($('<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>'));
+		this.title = $('<h4 class="modal-title">-</h4>');
+		head.append(this.title);
+		var body = $('<div class="modal-body"></div>');
+		content.append(body);
+		var row = $('<div class="row" style="margin-left: 70px;margin-right: 70px;">');
+		body.append(row);
+		this.txtInput = $('<input type="text" class="form-control" value="" style="float: left;width: 230px;" />');
+		row.append(this.txtInput);
+		this.butOk = $('<button class="btn btn-danger" type="button" style="float: right;width:80px;">-</button>');
+		row.append(this.butOk);
+		body.append($('<p><br /></p>'));
+		var self = this;
+		this.butOk.bind('click', function(){ self._do(); });
+	}
+	var _proto_ = Gv.CUIEditLine.prototype;
+
+	// options
+	// title, btnName, func
+	_proto_.show = function(options) {
+		this.setOptions(options);
+		this.divMain.modal('show');
+	};
+
+	_proto_.setOptions = function(options) {
+		if (!options)
+			options = {};
+		for (var k in options) {
+			console.log(k);
+			switch (k) {
+				case 'title':
+					this.title.text(options.title); break;
+				case 'btnName':
+					this.butOk.text(options.btnName); break;
+				case 'func':
+					this.func = options.func; break;
+			}
+		}
+	};
+
+	_proto_.getMainDiv = function() {
+		return this.divMain;
+	};
+
+	_proto_._do = function() {
+		if (this.func) {
+			this.func(this.txtInput.val());
+		}
+	}
 })(Gv || (Gv = {}));
