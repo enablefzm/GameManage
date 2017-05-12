@@ -85,6 +85,17 @@ class ob_gateway {
         return $obname;
     }
 
+    /**
+     * 获取游戏对象名
+     * @return ob_inter_game
+     */
+    static public function CGame() {
+        $gameKey = self::getGameKey();
+        self::requireGateWay($gameKey, 'game');
+        $obname = '\\'.$gameKey.'\\game';
+        return $obname;
+    }
+
     static private function getGameKey() {
         $gameKey = ob_session::GetSelectGameKey();
         if (!$gameKey) {

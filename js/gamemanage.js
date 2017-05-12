@@ -611,6 +611,7 @@ var Gv;
 			this.divMain.modal("hide");
 		}
 	};
+	// 踢人下线
 	Gv.UIOutPlayer = {
 		obEdit: null,
 		_init: function() {
@@ -677,18 +678,41 @@ var Gv;
 // 分区列表
 (function() {
 	var WinContent = {
+		obTable: null,
+		_init: function() {
+			if (this.obTable)
+				return;
+			this.obTable = new Gv.CContent();
+			this.obTable.dTableTitle.hide();
+			$('#contZoneList').append(this.obTable.getMainDiv());
+			$('#conZoneBtnAdd').bind('click', function() {
+				Gm.GameCacheFields.getFields('ZONE_ADD', function(vFields) {
+					Gv.UIEditer.show({
+						title: '添加新的游戏分区',
+						fields: vFields,
+						func: function(args) {
+							WinContent.doAddZone(args);
+						}
+					});
+				});
+			});
+		},
+		doAddZone: function(args) {
+
+		},
 		show: function() {
-			$('#contGameList').show();
+			this._init();
+			$('#contZoneList').show();
 			Gm.send('game zones', function(jsondb) {
 				WinContent.showDb(jsondb);
 			});
 		},
 		hide: function() {
-			$('#contGameList').hide();
+			$('#contZoneList').hide();
 		},
 		showDb: function(jsondb) {
 			if (jsondb.RES == true) {
-				Gv.Content.showTable(jsondb.DBs, [
+				WinContent.obTable.showTable(jsondb.DBs, [
 					['选定', function(zId) {
 						WinContent.setZone(zId);
 					}]
@@ -1453,19 +1477,16 @@ var Gv;
 		this.butOk.bind('click', function(){ self._do(); });
 	}
 	var _proto_ = Gv.CUIEditLine.prototype;
-
 	// options
 	// title, btnName, func
 	_proto_.show = function(options) {
 		this.setOptions(options);
 		this.divMain.modal('show');
 	};
-
 	_proto_.setOptions = function(options) {
 		if (!options)
 			options = {};
 		for (var k in options) {
-			console.log(k);
 			switch (k) {
 				case 'title':
 					this.title.text(options.title); break;
@@ -1476,11 +1497,9 @@ var Gv;
 			}
 		}
 	};
-
 	_proto_.getMainDiv = function() {
 		return this.divMain;
 	};
-
 	_proto_._do = function() {
 		if (this.func) {
 			this.func(this.txtInput.val());

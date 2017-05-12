@@ -45,7 +45,7 @@ class socket {
         $result = socket_write($this->sock, $byte->getByte());
         if (!$result) {
             $err = socket_last_error($this->sock);
-            throw new \Exception('发送失息失败：'.socket_strerror($err));
+            throw new \Exception('发送消息失败：'.socket_strerror($err));
         }
     }
 

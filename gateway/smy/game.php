@@ -33,6 +33,14 @@ class game extends \ob_game implements \ob_inter_game {
         }
         return $res->getRes();
     }
+
+    public static function getZoneFields() {
+        $obField = new \ob_res_zonefield();
+        $obField->addField('gameIP', '游戏服IP');
+        $obField->addField('gamePort', '游戏服端口');
+        return $obField;
+    }
+
 }
 
 ?>

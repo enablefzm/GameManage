@@ -39,6 +39,12 @@ class game implements ob_ifcmd {
                     $res->SetDBs($gateGame->getListZoneResDb());
                     return $res;
                     break;
+                case 'zonefield':
+                    $cGameName = ob_gateway::CGame();
+                    $res = $cGameName::getZoneFields();
+                    $res = ob_conn_res::GetRes('ZONE_FIELD');
+
+                    break;
                 case 'set':
                     if ($il < 3)
                         return ob_conn_res::GetResAndSet("GAMESET", false, '选定游戏错误，需要参数！');
