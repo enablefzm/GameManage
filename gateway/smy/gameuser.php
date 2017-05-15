@@ -30,6 +30,10 @@ class gameuser implements \ob_inter_gameuser {
         $this->forbidden     = $rs['forbidden'];
     }
 
+    public function getUsername() {
+        return $this->username;
+    }
+
     /**
      * 获得玩家具体信息
      * !CodeTemplates.overridecomment.nonjd!
@@ -39,6 +43,7 @@ class gameuser implements \ob_inter_gameuser {
         $obRes = new \ob_gameuserres($this->uid);
         $obRes->addFunc(\ob_gameuserres::FUN_EDIT_PASS);
         $obRes->addFunc(\ob_gameuserres::FUN_FORBIDDEN);
+        $obRes->addFunc(\ob_gameuserres::FUN_SEE_ROLE);
         $obRes->addDb(\ob_gameuserres::TEXT, '系统ID', $this->uid);
         $obRes->addDb(\ob_gameuserres::TEXT, '帐号UID', $this->username);
         $obRes->addDb(\ob_gameuserres::TEXT, '姓名', $this->name);

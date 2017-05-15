@@ -148,6 +148,17 @@ var Gm;
 							funcBack(jsondb.DBs);
 						});
 						break;
+					case 'SEND_MAIL':
+						var self = this;
+						GM.send('game mailfield', function(jsondb) {
+							if (jsondb.RES != true) {
+								Gv.DialogMsg.showErrMsg(jsondb.MSG);
+								return;
+							}
+							self.fields[game][fieldType] = jsondb.DBs;
+							funcBack(jsondb.DBs);
+						});
+						break;
 					default:
 						Gv.DialogMsg.showErrMsg("没有这个缓存数据" + fieldType + "相应的接口！");
 						return;
@@ -167,12 +178,18 @@ var Gm;
 			return this.ArrOB[obName];
 		}
 	};
-	GM.send = function(cmd, backFunc) {
+	GM.send = function(cmd, backFunc, vPost) {
 		Gv.LoadingIco.show(true);
+		if (!vPost) {
+			vPost = {'cmd': cmd};
+		} else {
+			vPost.cmd = cmd;
+		}
 		$.ajax({
 			'url': 		this.serverPath,
 			'dataType': 'json',
-			'data': 	{'cmd': cmd},
+			'type':     'POST',
+			'data': 	vPost,
 			'success': 	function(jsondb){
 				Gv.LoadingIco.show(false);
 				GM._sendSuccess(jsondb, backFunc);
@@ -535,7 +552,8 @@ var Gv;
 		var divMainName = '#modaEditUserBox';
 		var btns = {
 			'F_EDIT_PASS': '#modaEditUserBoxBtnPass',
-			'F_FORBIDDEN': '#modaEditUserBoxBtnForbidden'
+			'F_FORBIDDEN': '#modaEditUserBoxBtnForbidden',
+			'F_SEE_ROLE': '#modaEditUserBoxBtnRole'
 		};
 		var uiEditBox = function(){
 			this.tlbBody = null;
@@ -552,6 +570,17 @@ var Gv;
 						Gm.SetForbidden(self.key, function(jsondb) {
 							Gm.seeGUID(self.key, function(jsondb) { Gv.UIEditBox.show(jsondb); });
 						});
+					});
+				});
+				$(btns['F_SEE_ROLE']).bind('click', function() {
+					// Gv.UIListRoles.show();
+					// Gv.DialogMsg.showOkMsg(Gv.UIEditBox.key);
+					Gm.send('game seerole ' + Gv.UIEditBox.key, function(jsondb) {
+						if (!jsondb.RES) {
+							Gv.DialogMsg.showErrMsg(jsondb.MSG);
+							return;
+						}
+						Gv.UIListRoles.show(jsondb);
 					});
 				});
 			}
@@ -651,6 +680,63 @@ var Gv;
 			this.obEdit.show()
 		}
 	};
+	// 查看角色信息
+	Gv.UIListRoles = {
+		obTable: null,
+		obMain: null,
+		_init: function() {
+			if (this.obTable)
+				return;
+			this.obMain = $('#modaSeeRoles');
+			this.divTitle = $('#modaSeeRolesTitle');
+			this.obTable = new Gv.CContent();
+			$('#modalSeeRolesBody').append(this.obTable.getMainDiv());
+		},
+		show: function(jsondb) {
+			this.obMain.modal('show');
+			this.obTable.showTable(jsondb.DBs)
+		},
+		hide: function() {
+			this.obMain.modal('hide');
+		}
+	};
+	Gv.UISendMail = {
+		show: function() {
+			Gm.GameCacheFields.getFields('SEND_MAIL', function(vFields) {
+				Gv.UIEditer.show({
+					title: '向游戏里的角色发送邮件',
+					fields: vFields,
+					func: function(args) {
+						console.log(args);
+						var post = {};
+						for (var k in args) {
+							var arr = args[k].split('=');
+							if (arr.length > 1) {
+								var val = '';
+								for (var i = 1; i < arr.length; i++) {
+									val += arr[i];
+								}
+								post[arr[0]] = val;
+							}
+						}
+						Gm.send(
+							'game sendmail',
+							function(jsondb){
+								if (!jsondb.RES) {
+									Gv.DialogMsg.showErrMsg(jsondb.MSG);
+									return;
+								}
+								Gv.UIEditer.hide();
+								Gv.DialogMsg.showOkMsg(jsondb.MSG);
+							},
+							post
+						);
+					},
+					btnName: '发送邮件'
+				});
+			});
+		}
+	}
 })(Gv || (Gv = {}));
 
 // 游戏列表窗口对象
@@ -1402,6 +1488,7 @@ var Gv;
 	//		'title': '标题'
 	//		'fields': [['id', '名称', FIELD_TYPE]]
 	//		'func': click function
+	//		'btnName': '名称'
 	// 	}
 	//
 	_proto_.show = function(options) {
@@ -1415,6 +1502,9 @@ var Gv;
 					break;
 				case 'fields':
 					this._createField(options.fields);
+					break;
+				case 'btnName':
+					this.btnSave.text(options.btnName);
 					break;
 				case 'func':
 					this.backFunc = options.func;
@@ -1431,6 +1521,7 @@ var Gv;
 	};
 	_proto_._clear = function() {
 		this.dForm.empty();
+		this.btnSave.text('保存');
 		this.backFunc = null;
 	};
 	_proto_._createField = function(fields) {
@@ -1438,6 +1529,10 @@ var Gv;
 			var arr = fields[i];
 			var inputType = '';
 			switch (arr[2]) {
+				case 'FIELD_TEXTAREA':
+					inputType = '<textarea class="form-control" name="' + arr[0] + '" rows="3"></textarea>'; break;
+				case 'FIELD_CHECKBOX':
+					inputType = '<input type="checkbox" name="' + arr[0] + '">'; break;
 				case 'FIELD_TEXT':
 				default:
 					inputType = '<input type="text" name="' + arr[0] + '" class="form-control" />';
@@ -1450,7 +1545,19 @@ var Gv;
 		var arrInput = this.dForm.find("input");
 		for (var i = 0; i < arrInput.length; i++) {
 			var ob = arrInput[i];
-			args.push(ob.name + "=" + ob.value);
+			if (ob.type == 'checkbox') {
+				var tsel = 0;
+				if (ob.checked)
+					tsel = 1;
+					args.push(ob.name + "=" + tsel);
+			} else {
+				args.push(ob.name + "=" + ob.value);
+			}
+		}
+		var arrText = this.dForm.find("textarea");
+		for (var i = 0; i < arrText.length; i++) {
+			var ob = arrText[i];
+			args.push(ob.name + "=" + this.dForm.find("textarea[name='" + ob.name + "']").val());
 		}
 		if (this.backFunc) {
 			this.backFunc(args);

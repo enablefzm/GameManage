@@ -46,6 +46,13 @@ class game implements ob_ifcmd {
                     $obRes->SetDBs($res->getRes());
                     return $obRes;
                     break;
+                case 'mailfield':
+                    $cGameName = ob_gateway::CGame();
+                    $res = $cGameName::getSendMailField();
+                    $obRes = ob_conn_res::GetRes('MAIL_FIELD');
+                    $obRes->SetDBs($res->getRes());
+                    return $obRes;
+                    break;
                 case 'addzone':
                     if ($il < 2)
                         return ob_conn_res::GetResAndSet('GAME_ADDZONE', false, '缺少参数');
@@ -101,6 +108,32 @@ class game implements ob_ifcmd {
                     $obGame = ob_gateway::newGameOnID(ob_session::GetSelectGameKey(), ob_session::GetSess()->getGameID());
                     $result = $obGame->kickRole($zoneID, $roleName);
                     return ob_conn_res::GetResAndSet('GAME_KICK', $result[0], $result[1]);
+                    break;
+                // 查看角色信息
+                case 'seerole':
+                    if ($il < 2)
+                        return ob_conn_res::GetResAndSet('GAME_SEEROLE', false, '缺少参数');
+                    $zoneID = ob_session::getZoneID();
+                    if (!$zoneID)
+                        return ob_conn_res::GetResAndSet('GAME_SEEROLE', false, '你先选择要操作的游戏分区');
+                    $uid = $args[1];
+                    $obGame = ob_gateway::newGameOnID(ob_session::GetSelectGameKey(), ob_session::GetSess()->getGameID());
+                    $result = $obGame->seeRoles($zoneID, $uid);
+                    if (!$result[0])
+                        return ob_conn_res::GetResAndSet('GAME_SEEROLE', false, $result[1]);
+                    $res = $result[1];
+                    $obRes = ob_conn_res::GetResAndSet('GAME_SEEROLE', true, '');
+                    $obRes->SetDBs($res->getRes());
+                    return $obRes;
+                    break;
+                // 发送邮件
+                case 'sendmail':
+                    $zoneID = ob_session::getZoneID();
+                    if (!$zoneID)
+                        return ob_conn_res::GetResAndSet('GAME_SENDMAIL', false, '你先选择要操作的游戏分区');
+                    $obGame = ob_gateway::newGameOnID(ob_session::GetSelectGameKey(), ob_session::GetSess()->getGameID());
+                    $result = $obGame->sendMail($zoneID, $_POST);
+                    return ob_conn_res::GetResAndSet('GAME_SENDMAIL', $result[0], $result[1]);
                     break;
             }
         }

@@ -50,16 +50,6 @@ class socket {
     }
 
     public function read() {
-//         $result = '';
-//         while($buf = @ socket_read($this->sock, 1024, PHP_NORMAL_READ)) {
-//             if (!$buf) {
-//                 $err = socket_last_error($this->sock);
-//                 throw new \Exception('读取数据失败'.$err);
-//             }
-//             $result .= $buf;
-//         }
-//         return $result;
-
         $buf = @ socket_read($this->sock, 2048, PHP_NORMAL_READ);
         if (!$buf) {
             $err = socket_last_error($this->sock);

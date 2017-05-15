@@ -2,6 +2,8 @@
 
 class ob_res_fieldbase {
     const FIELD_TEXT = 'FIELD_TEXT';
+    const FIELD_CHECKBOX = 'FIELD_CHECKBOX';
+    const FIELD_TEXTAREA = 'FIELD_TEXTAREA';
 
     protected $fields = array();
 

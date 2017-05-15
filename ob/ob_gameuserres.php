@@ -5,6 +5,7 @@ class ob_gameuserres {
     const TEXT_RED      = 'TEXT_RED';
     const FUN_EDIT_PASS = 'F_EDIT_PASS';
     const FUN_FORBIDDEN = 'F_FORBIDDEN';
+    const FUN_SEE_ROLE  = 'F_SEE_ROLE';
 
     private $dbs   = array();
     private $func  = array();
