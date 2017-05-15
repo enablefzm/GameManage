@@ -42,8 +42,15 @@ class game implements ob_ifcmd {
                 case 'zonefield':
                     $cGameName = ob_gateway::CGame();
                     $res = $cGameName::getZoneFields();
-                    $res = ob_conn_res::GetRes('ZONE_FIELD');
-
+                    $obRes = ob_conn_res::GetRes('ZONE_FIELD');
+                    $obRes->SetDBs($res->getRes());
+                    return $obRes;
+                    break;
+                case 'addzone':
+                    if ($il < 2)
+                        return ob_conn_res::GetResAndSet('GAME_ADDZONE', false, '缺少参数');
+                    $arr = $this->addZone($args[1]);
+                    return ob_conn_res::GetResAndSet('GAME_ADDZONE', $arr[0], $arr[1]);
                     break;
                 case 'set':
                     if ($il < 3)
@@ -81,6 +88,20 @@ class game implements ob_ifcmd {
                             return ob_conn_res::GetResAndSet("GAMESET", false, '选定游戏错误，你要操作哪个选项？');
                     }
                     break;
+                // 踢人下线
+                case 'kick':
+                    if ($il < 2) {
+                        return ob_conn_res::GetResAndSet('GAME_KICK', false, '缺少参数');
+                    }
+                    // 获取当前ZoneID
+                    $zoneID = ob_session::getZoneID();
+                    if (!$zoneID)
+                        return ob_conn_res::GetResAndSet('GAME_KICK', false, '你先选择要操作的游戏分区');
+                    $roleName = $args[1];
+                    $obGame = ob_gateway::newGameOnID(ob_session::GetSelectGameKey(), ob_session::GetSess()->getGameID());
+                    $result = $obGame->kickRole($zoneID, $roleName);
+                    return ob_conn_res::GetResAndSet('GAME_KICK', $result[0], $result[1]);
+                    break;
             }
         }
         return ob_conn_res::GetResAndSet("GAME", false, '你要执行什么操作');
@@ -96,6 +117,31 @@ class game implements ob_ifcmd {
             return false;
         }
         return $obGame;
+    }
+
+    /**
+     * 增加新的分区Zone信息
+     * @param string $args
+     * @return array(bool, msg)
+     */
+    private function addZone($args) {
+        // 获取默认的游戏对象
+        $key = ob_session::GetSelectGameKey();
+        $id  = ob_session::GetSess()->getGameID();
+        $obGame = ob_gateway::newGameOnID($key, $id);
+        $result = $obGame->addZone($args);
+        if ($result < 1) {
+            switch ($result) {
+                case -1:
+                    return array(false, '错误的参数'.$result);
+                case -2:
+                    return array(false, '已存在这个分区ID'.$result);
+                default:
+                    return array(false, '未知错误'.$result);
+            }
+        } else {
+            return array(true, '操作成功！');
+        }
     }
 }
 

@@ -137,6 +137,17 @@ var Gm;
 							funcBack(arrSearch);
 						});
 						break;
+					case 'ZONE_ADD':
+						var self = this;
+						GM.send('game zonefield', function(jsondb) {
+							if (jsondb.RES != true) {
+								Gv.DialogMsg.showErrMsg(jsondb.MSG);
+								return;
+							}
+							self.fields[game][fieldType] = jsondb.DBs;
+							funcBack(jsondb.DBs);
+						});
+						break;
 					default:
 						Gv.DialogMsg.showErrMsg("没有这个缓存数据" + fieldType + "相应的接口！");
 						return;
@@ -622,7 +633,15 @@ var Gv;
 					title: '请输入要被踢下线的角色名',
 					btnName: '确定',
 					func: function(value) {
-						console.log(value);
+						// console.log(value);
+						Gm.send('game kick ' + value, function(jsondb) {
+							if (!jsondb.RES) {
+								Gv.DialogMsg.showErrMsg(jsondb.MSG);
+								return;
+							}
+							Gv.DialogMsg.showOkMsg(jsondb.MSG);
+							Gv.UIOutPlayer.obEdit.hide();
+						});
 					}
 				});
 			}
@@ -698,7 +717,14 @@ var Gv;
 			});
 		},
 		doAddZone: function(args) {
-
+			Gm.send('game addzone ' + args.join(','), function(jsondb) {
+				if (jsondb.RES != true) {
+					Gv.DialogMsg.showErrMsg(jsondb.MSG);
+					return;
+				}
+				Gv.Content.showContent('zoneList');
+				Gv.UIEditer.hide();
+			});
 		},
 		show: function() {
 			this._init();
@@ -1414,9 +1440,9 @@ var Gv;
 			switch (arr[2]) {
 				case 'FIELD_TEXT':
 				default:
-					inputType = '<input type="text" name="' + arr[0] + '" class="form-control" style="width:420px;" />';
+					inputType = '<input type="text" name="' + arr[0] + '" class="form-control" />';
 			}
-			this.dForm.append($('<div class="form-group"><label class="col-sm-2 control-label">' + arr[1] + '</label><div class="col-sm-10">' + inputType + '</div></div>'));
+			this.dForm.append($('<div class="form-group"><label class="col-sm-2 control-label" style="width:120px;">' + arr[1] + '</label><div class="col-sm-10" style="width:400px;">' + inputType + '</div></div>'));
 		}
 	};
 	_proto_.doSave = function() {
@@ -1481,8 +1507,12 @@ var Gv;
 	// title, btnName, func
 	_proto_.show = function(options) {
 		this.setOptions(options);
+		this.txtInput.val('');
 		this.divMain.modal('show');
 	};
+	_proto_.hide = function() {
+		this.divMain.modal('hide');
+	}
 	_proto_.setOptions = function(options) {
 		if (!options)
 			options = {};

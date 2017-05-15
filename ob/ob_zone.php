@@ -1,6 +1,8 @@
 <?php
 
 class ob_zone {
+    const TLB_NAME = 'zones';
+
     private $attrib = array(
         'id' => 0,
         'gameID' => 0,
@@ -8,7 +10,7 @@ class ob_zone {
         'zoneName' => 0,
         'zoneDate' => 0,
     );
-    protected $id;
+    protected $id = 0;
     protected $gameID;
     protected $zoneID;
     protected $zoneName;
@@ -51,12 +53,38 @@ class ob_zone {
         return $this->gameID;
     }
 
+    public function getSaveAttrib() {
+        return '';
+    }
+
+    public function save() {
+        $saveInfo = array(
+            'gameID' => $this->gameID,
+            'zoneID' => $this->zoneID,
+            'zoneName' => $this->zoneName,
+            'zoneAttrib' => $this->getSaveAttrib()
+        );
+        if ($this->id > 0) {
+            ob_conn_connect::GetConn()->updata(self::TLB_NAME, 'id='.$this->id, $saveInfo);
+        } else {
+            $lastID = ob_conn_connect::GetConn()->updata(self::TLB_NAME, null, $saveInfo, true);
+            $this->id = $lastID;
+        }
+    }
+
     static public function getZone($id) {
+        $rs = self::getZoneRs($id);
+        if (!$rs)
+            return null;
+        return new ob_zone($rs);
+    }
+
+    static public function getZoneRs($id) {
         $id = floor($id);
         $rss = ob_conn_connect::GetConn()->query("zones", "id=".$id);
         if (count($rss) != 1)
             return null;
-        return new ob_zone($rss[0]);
+        return $rss[0];
     }
 
     static public function getZoneInZoneID($gameID, $zoneID) {

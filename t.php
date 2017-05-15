@@ -16,11 +16,20 @@ echo '加密后：'.$cryTxt.'<br />';
 echo '解密后：'.$uncryTxt.'<br />';
 
 try {
-    $conn = \smy\socket::newSocket(null);
-    $conn->send('哈喽');
-    $str = $conn->read();
-    echo $str;
-    sleep(1);
+    // $conn = new \smy\socket('59.57.223.179', '18960', 101);
+    $conn = new \smy\socket('127.0.0.1', '8866', 101);
+    $kickProtec = array(
+        'type' => 11,
+        'serverId' => 101,
+        'name'     => 'enablefzm'
+    );
+    $conn->send(json_encode($kickProtec, JSON_UNESCAPED_UNICODE));
+    // 读取数据
+    $readVal = $conn->read();
+    echo $readVal;
+    echo '<br />';
+    $json = json_decode($readVal, true);
+    var_dump($json);
 } catch (Exception $e) {
     echo "发送错误：".$e->getMessage();
 }

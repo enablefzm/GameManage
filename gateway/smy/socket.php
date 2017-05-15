@@ -3,14 +3,14 @@ namespace smy;
 require_once(__DIR__.'/Byte.php');
 
 class socket {
-    const XOR_KEY = 'JIMMY&Fzm';
+    const XOR_KEY = 'Yhyx$SMY2017';
     private static $obSock;
 
     private $sock;
     private $serverID;
     private $host;
     private $port;
-    private $linkKey = 'TEST';
+    private $linkKey = 'XmYhyx$SMY2017';
 
     /**
      * 构造对象
@@ -23,7 +23,7 @@ class socket {
             throw new \Exception("无法创建Socket");
             return;
         }
-        // socket_setopt($this->sock, SOL_SOCKET, SO_RCVTIMEO, array('sec' => 5, 'usec' => 5));
+        socket_setopt($this->sock, SOL_SOCKET, SO_RCVTIMEO, array('sec' => 5, 'usec' => 5));
         // 连接到指定对象
         $this->host = $host;
         $this->port = $port;
@@ -37,7 +37,7 @@ class socket {
         // 建立验证
         $linkProtec = $this->getSendLinkJson();
         $cryProtec  = self::xorEnc($linkProtec, self::XOR_KEY);
-        $this->send($linkProtec);
+        $this->send($cryProtec);
     }
 
     public function send($data) {
@@ -50,12 +50,22 @@ class socket {
     }
 
     public function read() {
-        $result = @ socket_read($this->sock, 91);
-        if (!$result) {
+//         $result = '';
+//         while($buf = @ socket_read($this->sock, 1024, PHP_NORMAL_READ)) {
+//             if (!$buf) {
+//                 $err = socket_last_error($this->sock);
+//                 throw new \Exception('读取数据失败'.$err);
+//             }
+//             $result .= $buf;
+//         }
+//         return $result;
+
+        $buf = @ socket_read($this->sock, 2048, PHP_NORMAL_READ);
+        if (!$buf) {
             $err = socket_last_error($this->sock);
-            throw new \Exception('读取数据失败');
+            throw new \Exception('读取数据失败'.$err);
         }
-        return $result;
+        return $buf;
     }
 
     public function __destruct() {
@@ -68,7 +78,7 @@ class socket {
         $arrSend = array(
             'serverType' => 13,
             'IP' => $ip,
-            'serverID' => $this->serverID,
+            'serverID' => (int)$this->serverID,
         );
         $arrSend['sign'] = md5($arrSend['serverType'].$ip.$this->serverID.$this->linkKey);
         return json_encode($arrSend, JSON_UNESCAPED_UNICODE);
@@ -97,12 +107,17 @@ class socket {
 
     /**
      * 创建Socket对象
-     * @param unknown $obZone
+     * @param zone $obZone
      * @return socket
      */
     public static function newSocket($obZone) {
         if (!self::$obSock) {
-            self::$obSock = new socket('127.0.0.1', 8866, 101);
+            try {
+                self::$obSock = new socket($obZone->getGameServerIP(), $obZone->getGameServerPort(), $obZone->getZoneID());
+            } catch (\Exception $e) {
+                echo \ob_conn_res::CreateSystemError('连接游戏服务器出错')->ToJson();
+                die(0);
+            }
         }
         return self::$obSock;
     }

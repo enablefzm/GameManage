@@ -42,7 +42,7 @@ class Byte {
     }
 
     private function getProtecByte() {
-        $lenByte = pack('N', $this->length);
+        $lenByte = pack('V', $this->length);
         // 生成个空字节
         $nullByte = pack('c', '0');
         return $lenByte.$nullByte.$this->byte;
