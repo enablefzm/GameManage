@@ -1,6 +1,7 @@
 <?php
 namespace smy;
 require_once(__DIR__.'/Byte.php');
+require_once(__DIR__.'/config.php');
 
 class socket {
     const XOR_KEY = 'Yhyx$SMY2017';
@@ -23,7 +24,8 @@ class socket {
             throw new \Exception("无法创建Socket");
             return;
         }
-        socket_setopt($this->sock, SOL_SOCKET, SO_RCVTIMEO, array('sec' => 5, 'usec' => 5));
+        socket_setopt($this->sock, SOL_SOCKET, SO_RCVTIMEO, array('sec' => 3, 'usec' => 0));
+        socket_setopt($this->sock, SOL_SOCKET, SO_SNDTIMEO, array('sec' => 3, 'usec' => 0));
         // 连接到指定对象
         $this->host = $host;
         $this->port = $port;
@@ -51,10 +53,12 @@ class socket {
 
     public function read() {
         $buf = @ socket_read($this->sock, 2048, PHP_NORMAL_READ);
+        // $buf = @ socket_read($this->sock, 1);
         if (!$buf) {
             $err = socket_last_error($this->sock);
             throw new \Exception('读取数据失败'.$err);
         }
+        \ob_log::loginLog('SOCK', $buf);
         return $buf;
     }
 
@@ -103,7 +107,7 @@ class socket {
     public static function newSocket($obZone) {
         if (!self::$obSock) {
             try {
-                self::$obSock = new socket($obZone->getGameServerIP(), $obZone->getGameServerPort(), $obZone->getZoneID());
+                self::$obSock = new socket(config::GAME_IP, config::GAME_PORT, $obZone->getZoneID());
             } catch (\Exception $e) {
                 echo \ob_conn_res::CreateSystemError('连接游戏服务器出错')->ToJson();
                 die(0);

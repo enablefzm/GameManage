@@ -20,8 +20,6 @@ class game extends \ob_game implements \ob_inter_game {
         $res->addMenu('分区ID', 0);
         $res->addMenu('游戏名称', 0);
         $res->addMenu('分区名称', 0);
-        $res->addMenu('游戏服IP', 0);
-        $res->addMenu('游戏服端口', 0);
         $res->addMenu('创建时间', 0);
         $rss = \ob_conn_connect::GetConn()->query('zones', 'gameID='.$this->getID());
         foreach ($rss as $k => $rs) {
@@ -33,8 +31,6 @@ class game extends \ob_game implements \ob_inter_game {
                 $info['zoneID'],
                 $this->getName(),
                 $info['zoneName'],
-                $ob->getGameServerIP(),
-                $ob->getGameServerPort(),
                 date('Y-m-d', strtotime($info['zoneDate']))
             ));
         }
@@ -178,9 +174,10 @@ class game extends \ob_game implements \ob_inter_game {
         if ($arrResult[0]) {
             $json = $arrResult[1];
             if ($json['result'] == 1) {
-                return array(true, '踢人下线成功！');
+                return array(true, '踢人下线成功！'.$json['result']);
             } else {
-                return array(false, '踢人下线失败！');
+                // var_dump($arrResult);
+                return array(false, '踢人下线失败！'.$json['result'].'*');
             }
         } else {
             return $arrResult;
@@ -278,8 +275,8 @@ class game extends \ob_game implements \ob_inter_game {
         $saveInfo = array(
             'gameID'   => $this->getID(),
             'zoneID'   => $arrSaveField['zoneID'],
-            'zoneName' => $arrSaveField['zoneName'],
-            'zoneAttrib' => sprintf('gameServerIP=%s,gameServerPort=%s', $arrSaveField['gameIP'], $arrSaveField['gamePort'])
+            'zoneName' => $arrSaveField['zoneName']
+            // 'zoneAttrib' => sprintf('gameServerIP=%s,gameServerPort=%s', $arrSaveField['gameIP'], $arrSaveField['gamePort'])
         );
         $obZone = new zone($saveInfo);
         $obZone->save();
@@ -288,8 +285,8 @@ class game extends \ob_game implements \ob_inter_game {
 
     public static function getZoneFields() {
         $obField = new \ob_res_zonefield();
-        $obField->addField('gameIP', '游戏服IP');
-        $obField->addField('gamePort', '游戏服端口');
+        // $obField->addField('gameIP', '游戏服IP');
+        // $obField->addField('gamePort', '游戏服端口');
         return $obField;
     }
 
@@ -323,23 +320,23 @@ class game extends \ob_game implements \ob_inter_game {
                             return false;
                         $saveField[$saveKey] = $saveVal;
                         break;
-                    case 'gameIP':
-                        if (!\ob_feature::isIpAdder($saveVal))
-                            return false;
-                        $saveField[$saveKey] = $saveVal;
-                        break;
-                    case 'gamePort':
-                        if (!is_numeric($saveVal))
-                            return false;
-                        $saveField[$saveKey] = $saveVal;
-                        break;
+//                     case 'gameIP':
+//                         if (!\ob_feature::isIpAdder($saveVal))
+//                             return false;
+//                         $saveField[$saveKey] = $saveVal;
+//                         break;
+//                     case 'gamePort':
+//                         if (!is_numeric($saveVal))
+//                             return false;
+//                         $saveField[$saveKey] = $saveVal;
+//                         break;
                     case 'zoneName':
                         $saveField[$saveKey] = $saveVal;
                         break;
                 }
             }
         }
-        if (count($saveField) != 4) {
+        if (count($saveField) != 2) {
             return false;
         }
         return $saveField;

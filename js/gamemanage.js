@@ -865,7 +865,12 @@ var Gv;
 			var divMain = $('#conGameUserList');
 			divMain.append(this.obTable.getMainDiv());
 			this.obSearch = new Gv.CBoxSearch();
+			// this.btnExcel = $('<button type="button" class="btn btn-primary" style="float: right; margin-left:10px;background-color: #555;border-color: #333;" >导出Excel数据</button>');
+			// divMain.find('h4').append(this.btnExcel);
 			divMain.find('h4').append(this.obSearch.getMainDiv());
+			// this.btnExcel.bind('click', function() {
+			// 	window.location.href = "phpinfo.php";
+			// });
 			// this.obSearch.showSearch()
 		},
 		// options

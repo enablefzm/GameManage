@@ -14,5 +14,8 @@ class config {
     static public $UC_DB_USER   = 'root';
     static public $UC_DB_PWD    = 'XmyhSmy)%(@##**$(#abc.!@#';
     static public $UC_DB_DBNAME = 't_ucenter';
+    // 游戏服务器
+    const GAME_IP   = '120.76.117.208';
+    const GAME_PORT = '18960';
 }
 ?>
