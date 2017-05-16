@@ -680,6 +680,30 @@ var Gv;
 			this.obEdit.show()
 		}
 	};
+	// 下载Excel文件
+	Gv.UIDownExcel = {
+		isInit: false,
+		_init: function() {
+			if (this.isInit)
+				return;
+			var self = this;
+			$('#modaDownExcelBtn').bind('click', function() {
+				var year = $('#modaDownExcelYear').val();
+				var month = $('#modaDownExcelMonth').val();
+				Gv.DialogMsg.showInquiry('确定要导出' + year + '年' + month + '月份的玩家Excel数据？', function() {
+					self.doDownExcel(year, month);
+				});
+			});
+			this.isInit = true;
+		},
+		show: function() {
+			this._init();
+			$('#modaDownExcel').modal('show');
+		},
+		doDownExcel: function(vYear, vMonth) {
+			window.location.href = 'downexcel.php?y=' + vYear + '&m=' + vMonth;
+		}
+	};
 	// 查看角色信息
 	Gv.UIListRoles = {
 		obTable: null,
@@ -690,9 +714,11 @@ var Gv;
 			this.obMain = $('#modaSeeRoles');
 			this.divTitle = $('#modaSeeRolesTitle');
 			this.obTable = new Gv.CContent();
+			this.obTable.dTableTitle.hide();
 			$('#modalSeeRolesBody').append(this.obTable.getMainDiv());
 		},
 		show: function(jsondb) {
+			this._init();
 			this.obMain.modal('show');
 			this.obTable.showTable(jsondb.DBs)
 		},

@@ -1,6 +1,6 @@
 <?php
 require_once 'core.php';
-require_once(__DIR__.'/gateway/smy/socket.php');
+// require_once(__DIR__.'/gateway/smy/socket.php');
 if (isset($_POST['cmd'])) {
     $obRes = ob_cmd::DoCmd($_POST['cmd']);
 } else {

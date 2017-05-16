@@ -64,6 +64,7 @@ class gameuser implements ob_ifcmd {
                 if (!$blnOK) {
                     return ob_conn_res::GetResAndSet($keyName, false, '修改密码操作失败！ -_-!');
                 }
+                ob_log::logAct("EDIT_PASS", '修改了'.$uid.'密码');
                 return ob_conn_res::GetResAndSet($keyName, true, '修改密码操作成功！');
             // 封号操作
             case 'setforbidden':

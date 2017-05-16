@@ -60,7 +60,9 @@ class game extends \ob_game implements \ob_inter_game {
 
     private function sendSocket($sock, $arrInfo) {
         try {
-            $sock->send(json_encode($arrInfo, JSON_UNESCAPED_UNICODE));
+            $jsonVal = json_encode($arrInfo, JSON_UNESCAPED_UNICODE);
+            $sock->send($jsonVal);
+            \ob_log::logAct('SOCK_SEND', $jsonVal);
             return array(true, '');
         } catch (\Exception $e) {
             return array(false, $e->getMessage());
@@ -104,10 +106,14 @@ class game extends \ob_game implements \ob_inter_game {
             if (strlen($toName) < 1)
                 return array(false, '请输入收件人角色名称');
         }
+        $arrResult = $this->getObZone($zoneID);
+        if (!$arrResult[0])
+            return $arrResult;
+        $obZone = $arrResult[1];
         // 生成发送协议
         $protec = array(
             'type' => 9,
-            'serverId' => (int)$zoneID,
+            'serverId' => (int)$obZone->getZoneID(),
             'toName' => $toName,
             'content' => $content,
             'title' => $title,
@@ -116,10 +122,6 @@ class game extends \ob_game implements \ob_inter_game {
             'money' => $money,
             'isMulti' => $isMulti
         );
-        $arrResult = $this->getObZone($zoneID);
-        if (!$arrResult[0])
-            return $arrResult;
-        $obZone = $arrResult[1];
         $sock = socket::newSocket($obZone);
         $arrSend = $this->sendSocket($sock, $protec);
         if (!$arrSend[0])
@@ -163,7 +165,7 @@ class game extends \ob_game implements \ob_inter_game {
         $sock = socket::newSocket($obZone);
         $kickProtec = array(
             'type' => 11,
-            'serverId' => (int)$zoneID,
+            'serverId' => (int)$obZone->getZoneID(),
             'name'     => $roleName
         );
         $arrSend = $this->sendSocket($sock, $kickProtec);
@@ -177,7 +179,7 @@ class game extends \ob_game implements \ob_inter_game {
                 return array(true, '踢人下线成功！'.$json['result']);
             } else {
                 // var_dump($arrResult);
-                return array(false, '踢人下线失败！'.$json['result'].'*');
+                return array(false, '踢人下线失败，玩家不在线！'.$json['result']);
             }
         } else {
             return $arrResult;
@@ -202,7 +204,7 @@ class game extends \ob_game implements \ob_inter_game {
         $sock = socket::newSocket($obZone);
         $protec = array(
             'type' => 7,
-            'serverId' => (int)$zoneID,
+            'serverId' => (int)$obZone->getZoneID(),
             'name' => $obGameUser->getUsername()
         );
         $arrSend = $this->sendSocket($sock, $protec);
@@ -225,34 +227,36 @@ class game extends \ob_game implements \ob_inter_game {
         $res->addMenu('职业', 0);
         $res->addMenu('等级', 0);
         $res->addMenu('是否删除', 0);
-        $resDb = $arrResult[1]['charInfo'];
-        foreach ($resDb as $k => $db) {
-            $profession = '战士';
-            switch ($db['profession']) {
-                case 0: $profession = '战士'; break;
-                case 1: $profession = '乐师'; break;
-                case 2: $profession = '法师'; break;
-                case 3: $profession = '刺客'; break;
-                case 4: $profession = '猎人'; break;
-                case 5: $profession = '火枪'; break;
+        if (isset($arrResult[1]['charInfo'])) {
+            $resDb = $arrResult[1]['charInfo'];
+            foreach ($resDb as $k => $db) {
+                $profession = '战士';
+                switch ($db['profession']) {
+                    case 0: $profession = '战士'; break;
+                    case 1: $profession = '乐师'; break;
+                    case 2: $profession = '法师'; break;
+                    case 3: $profession = '刺客'; break;
+                    case 4: $profession = '猎人'; break;
+                    case 5: $profession = '火枪'; break;
+                }
+                $res->addDb(array(
+                    $db['charName'],
+                    $db['createTime'],
+                    $db['money'],
+                    $db['jinding'],
+                    $db['jinpiao'],
+                    $db['shuijin'],
+                    $db['storageMoney'],
+                    $db['recharge_jinding'],
+                    $db['avgfight'],
+                    $db['onlineTime'],
+                    $profession,
+                    $db['level'],
+                    $db['delTime']
+                ));
             }
-            $res->addDb(array(
-                $db['charName'],
-                $db['createTime'],
-                $db['money'],
-                $db['jinding'],
-                $db['jinpiao'],
-                $db['shuijin'],
-                $db['storageMoney'],
-                $db['recharge_jinding'],
-                $db['avgfight'],
-                $db['onlineTime'],
-                $profession,
-                $db['level'],
-                $db['delTime']
-            ));
         }
-        return $res;
+        return array(true, $res);
     }
 
     /**

@@ -53,12 +53,11 @@ class socket {
 
     public function read() {
         $buf = @ socket_read($this->sock, 2048, PHP_NORMAL_READ);
-        // $buf = @ socket_read($this->sock, 1);
         if (!$buf) {
             $err = socket_last_error($this->sock);
             throw new \Exception('读取数据失败'.$err);
         }
-        \ob_log::loginLog('SOCK', $buf);
+        \ob_log::logAct('SOCK_READ', $buf);
         return $buf;
     }
 
