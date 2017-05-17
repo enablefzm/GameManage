@@ -24,8 +24,8 @@ class socket {
             throw new \Exception("无法创建Socket");
             return;
         }
-        socket_setopt($this->sock, SOL_SOCKET, SO_RCVTIMEO, array('sec' => 3, 'usec' => 0));
-        socket_setopt($this->sock, SOL_SOCKET, SO_SNDTIMEO, array('sec' => 3, 'usec' => 0));
+        socket_setopt($this->sock, SOL_SOCKET, SO_RCVTIMEO, array('sec' => 5, 'usec' => 0));
+        socket_setopt($this->sock, SOL_SOCKET, SO_SNDTIMEO, array('sec' => 5, 'usec' => 0));
         // 连接到指定对象
         $this->host = $host;
         $this->port = $port;
@@ -52,12 +52,12 @@ class socket {
     }
 
     public function read() {
-        $buf = @ socket_read($this->sock, 2048, PHP_NORMAL_READ);
+        $buf = @ socket_read($this->sock, 4096, PHP_NORMAL_READ);
+        \ob_log::logAct('SOCK_READ', $buf);
         if (!$buf) {
             $err = socket_last_error($this->sock);
             throw new \Exception('读取数据失败'.$err);
         }
-        \ob_log::logAct('SOCK_READ', $buf);
         return $buf;
     }
 

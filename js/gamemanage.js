@@ -726,6 +726,7 @@ var Gv;
 			this.obMain.modal('hide');
 		}
 	};
+	// 发送邮件
 	Gv.UISendMail = {
 		show: function() {
 			Gm.GameCacheFields.getFields('SEND_MAIL', function(vFields) {
@@ -1134,7 +1135,6 @@ var Gv;
 		hide: function() {
 			this.divMain.hide();
 		}
-
 	}
 	Gv.Content.regContent('payCount', UserPayCountContent);
 })();
@@ -1226,6 +1226,104 @@ var Gv;
 	}
 	Gv.Content.regContent('ipList', IpContent);
 	Gm.OBs.regOB('IPLIST', IpContent);
+})();
+// 用户管理列表
+(function() {
+	var ManageUserContent = {
+		obTable: null,
+		_init: function() {
+			if (this.obTable)
+				return;
+			var divMain = $('#conUserList');
+			this.obTable = new Gv.CContent();
+			this.obTable.dTableTitle.hide();
+			divMain.append(this.obTable.getMainDiv());
+			$('#conUserListBtnAdd').bind('click', function() {
+				Gv.UIEditer.show({
+					title: '新增用户',
+					fields: [['uid', '帐号名称', 'FIELD_TEXT'],
+							 ['name', '用户姓名', 'FIELD_TEXT'],
+							 ['pass', '用户密码', 'FIELD_TEXT']],
+					func: function(args) {
+						ManageUserContent.doAddUser(args);
+					}
+				});
+			});
+		},
+		show: function(options) {
+			this._init();
+			$('#conUserList').show();
+			Gm.send('user list', function(jsondb) {
+				ManageUserContent.showDb(jsondb);
+			});
+		},
+		showDb: function(jsondb) {
+			if (jsondb.RES != true) {
+				Gv.DialogMsg.showErrMsg(jsondb.MSG);
+				return;
+			}
+			this.obTable.showTable(jsondb.DBs, [
+				['修改密码', function(args){ ManageUserContent.showEditPassword(args); }],
+				['删除', function(args){ ManageUserContent.showDeleteUser(args); }],
+			]);
+		},
+		showEditPassword: function(uid) {
+			Gv.UIEditer.show({
+				title: '修改用户密码',
+				fields: [['pass', '新的密码', 'FIELD_TEXT']],
+				func: function(args) {
+						ManageUserContent.doUpPass(uid, args);
+					},
+				btnName: '修改密码'
+			});
+		},
+		showDeleteUser: function(uid) {
+			Gv.DialogMsg.showInquiry('确定要删除【' + uid + '】用户？', function(){
+				Gm.send('user del ' + uid, function(jsondb) {
+					if (!jsondb.RES) {
+						Gv.DialogMsg.showErrMsg(jsondb.MSG);
+						return;
+					}
+					ManageUserContent.show();
+				});
+			});
+		},
+		doUpPass: function(uid, args) {
+			console.log(uid, args);
+			var arg = args[0];
+			var arr = arg.split('=');
+			if (arr.length != 2)
+				return;
+			var newpass = arr[1];
+			if (newpass.length < 1)
+				return;
+			Gm.send('user uppass ' + uid + ' ' + newpass, function(jsondb) {
+				if (!jsondb.RES) {
+					Gv.DialogMsg.showErrMsg(jsondb.MSG);
+					return;
+				}
+				Gv.UIEditer.hide();
+				Gv.DialogMsg.showOkMsg(jsondb.MSG);
+			});
+		},
+		doAddUser: function(args) {
+			var parames = args.join(',');
+			Gm.send('user add ' + parames, function(jsondb) {
+				if (!jsondb.RES) {
+					Gv.DialogMsg.showErrMsg(jsondb.MSG);
+					return;
+				}
+				Gv.UIEditer.hide();
+				ManageUserContent.show();
+			});
+
+		},
+		hide: function() {
+			$('#conUserList').hide();
+		}
+	}
+	Gv.Content.regContent('gmlist', ManageUserContent);
+	// Gm.OBs.regOB('GMLIST', ManageUserContent);
 })();
 
 // 窗口表格对象

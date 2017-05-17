@@ -71,7 +71,11 @@
                                         <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('payCount', {});"><i class="glyphicon glyphicon-gbp"></i> 本服统计</a></li>
                                     </ul>
                                 </li>
-                                <li><a href="#"><i class="glyphicon glyphicon-fire"></i> 关于系统</a></li>
+                                <li><a href="#mnuSystem" class="nav-header collapsed" data-toggle="collapse"><i class="glyphicon glyphicon-cog"></i> 关于系统<span class="pull-right glyphicon glyphicon-chevron-down"></span></a>
+                                    <ul id="mnuSystem" class="nav nav-list collapse secondmenu" style="height: 0px;">
+                                        <li><a href="javascript:void(0);" onclick="javascript:Gv.Content.showContent('gmlist', {});"><i class="glyphicon glyphicon-magnet"></i> 用户管理</a></li>
+                                    </ul>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -115,7 +119,11 @@
                 </div>
                 <!-- 玩家充值统计列表 -->
                 <div id="conUserPayCount" style="display: none;margin-right: 20px;">
-                    <div class="page-header"><h4>玩家充值列统计&nbsp;<small>查看玩家在游戏里的充值统计信息</small></h4></div>
+                    <div class="page-header"><h4>玩家充值统计&nbsp;<small>查看玩家在游戏里的充值统计信息</small></h4></div>
+                </div>
+                <!-- 管理用户列表 -->
+                <div id="conUserList" style="display: none;margin-right: 20px;">
+                    <div class="page-header"><h4>用户列表&nbsp;<small>查看管理用户列表信息</small><button type="button" class="btn btn-primary" style="float: right;" id="conUserListBtnAdd">增加管理用户</button></h4></div>
                 </div>
             </div>
         </div>
